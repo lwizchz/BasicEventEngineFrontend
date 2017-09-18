@@ -63,8 +63,6 @@ class BEEFSound(BEEFBaseResource):
 
 	def onTextSpecific(self, event):
 		return True
-	def onCheckBoxSpecific(self, event):
-		pass
 	def onButtonSpecific(self, event):
 		bt = event.GetEventObject()
 		if bt == self.inputs["bt_ok"]:
@@ -120,10 +118,6 @@ class BEEFSound(BEEFBaseResource):
 		return True
 	def onSliderSpecific(self, event):
 		return True
-	def onSpinCtrlSpecific(self, event):
-		pass
-	def onListEditSpecific(self, event):
-		pass
 
 	def update(self):
 		self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))

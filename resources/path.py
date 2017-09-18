@@ -49,10 +49,12 @@ class BEEFPath(BEEFBaseResource):
 		self.pageAddButton("bt_ok", "OK", (6,0))
 
 		# Column 2
-		pl = self.pageAddPlot("pl_coordinates", (0,3), (7,1))
+		pl = self.pageAddPlot("pl_coordinates", (0,3), (6,1))
 		pl.SetCoords(self.properties["coordinates"])
 		pl.Redraw()
 
+		self.gbs.AddGrowableRow(4)
+		self.gbs.AddGrowableCol(3)
 		self.sizer = wx.BoxSizer()
 		self.sizer.Add(self.gbs, 1, wx.ALL | wx.EXPAND, 20)
 		self.page.SetSizer(self.sizer)
@@ -83,13 +85,17 @@ class BEEFPath(BEEFBaseResource):
 			pl.Redraw()
 
 		return True
-	def onSliderSpecific(self, event):
-		pass
-	def onSpinCtrlSpecific(self, event):
-		pass
 	def onListEditSpecific(self, event):
 		pl = self.inputs["pl_coordinates"]
-		pl.SetCoords(self.inputs["lst_coordinates"].GetItemList()) # This uses the old coordinate because it is called from the end edit event
+
+		# Update the coords with the new event data
+		coords = self.inputs["lst_coordinates"].GetItemList()
+		item = event.GetItem()
+		c = list(coords[item.GetId()])
+		c[item.GetColumn()] = item.GetText()
+		coords[item.GetId()] = tuple(c)
+		pl.SetCoords(coords)
+
 		pl.Redraw()
 		return True
 

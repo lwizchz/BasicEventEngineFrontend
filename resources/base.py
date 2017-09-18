@@ -174,7 +174,7 @@ class BEEFBaseResource:
 		self.inputs[name] = BEEFPlot(self.page)
 		return self.inputs[name]
 	def pageMakeEditor(self, name):
-		self.inputs[name] = BEEFEditor(self.page)
+		self.inputs[name] = BEEFEditor(self.top, self.page)
 		return self.inputs[name]
 
 	def pageAddStatictext(self, text, pos, size=(1,1), name=""):
@@ -209,17 +209,17 @@ class BEEFBaseResource:
 		sc = self.pageMakeSpinctrl(name, min, max, value)
 		self.gbs.Add(sc, pos, size)
 		return sc
-	def pageAddListCtrl(self, name, columns, pos, size=(1,1)):
+	def pageAddListCtrl(self, name, columns, pos, size=(1,1), flag=wx.EXPAND):
 		lst = self.pageMakeListCtrl(name, columns)
-		self.gbs.Add(lst, pos, size)
+		self.gbs.Add(lst, pos, size, flag=flag)
 		return lst
-	def pageAddPlot(self, name, pos, size=(1,1)):
+	def pageAddPlot(self, name, pos, size=(1,1), flag=wx.EXPAND):
 		pl = self.pageMakePlot(name)
-		self.gbs.Add(pl, pos, size)
+		self.gbs.Add(pl, pos, size, flag=flag)
 		return pl
-	def pageAddEditor(self, name, pos, size=(1,1)):
+	def pageAddEditor(self, name, pos, size=(1,1), flag=wx.EXPAND):
 		ed = self.pageMakeEditor(name)
-		self.gbs.Add(ed, pos, size)
+		self.gbs.Add(ed, pos, size, flag=flag)
 		return ed
 
 	def addListRow(self, name, rowData, isSortable=True):

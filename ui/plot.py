@@ -10,15 +10,18 @@ except ImportError:
 	raise ImportError("The wxPython module is required to run this program")
 
 class BEEFPlot(wx.Panel):
-	def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition, size=(500,500), style=wx.LC_ICON, scale=2):
+	def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.LC_ICON, scale=2):
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.SetBackgroundColour(wx.WHITE)
 
+		size = self.GetSize()
+		size = (size.GetWidth(), size.GetHeight())
 		self.ox = size[0]/2
 		self.oy = size[1]/2
 		self.scale = scale
 		self.coords = []
 
+		self.Bind(wx.EVT_SIZE, self.OnSize)
 		self.Bind(wx.EVT_PAINT, self.Redraw)
 
 	def SetCoords(self, coords):
@@ -26,6 +29,13 @@ class BEEFPlot(wx.Panel):
 		for c in coords:
 			self.coords.append(c)
 
+	def OnSize(self, event):
+		size = self.GetSize()
+		size = (size.GetWidth(), size.GetHeight())
+		self.ox = size[0]/2
+		self.oy = size[1]/2
+
+		self.Redraw()
 	def GetInt(self, s):
 		return int(round(float(s)))
 	def Redraw(self, event=None):

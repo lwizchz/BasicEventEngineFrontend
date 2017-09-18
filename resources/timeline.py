@@ -40,8 +40,6 @@ class BEEFTimeline(BEEFBaseResource):
 		lst = self.pageAddListCtrl("lst_actions", ["Time", "Name"], (2,0), (1,2)) # Perhaps replace with a Grid
 		lst.SetValidator(0, BEEFValidatorInt())
 		lst.SetValidator(1, BEEFValidatorIdentifier())
-		lst.SetMinSize((250,325))
-		lst.Layout()
 
 		self.tmpActions = []
 		for time, name, code in self.properties["actions"]:
@@ -55,7 +53,7 @@ class BEEFTimeline(BEEFBaseResource):
 
 		# Column 2
 		self.lastSelected = -1
-		ed = self.pageAddEditor("ed_action", (0,3), (5,1))
+		ed = self.pageAddEditor("ed_action", (0,3), (4,1))
 		if len(self.tmpActions) > 0:
 			ed.SetText(self.tmpActions[0])
 			lst.Select(0)
@@ -63,6 +61,8 @@ class BEEFTimeline(BEEFBaseResource):
 		else:
 			ed.Enable(False)
 
+		self.gbs.AddGrowableRow(2)
+		self.gbs.AddGrowableCol(3)
 		self.sizer = wx.BoxSizer()
 		self.sizer.Add(self.gbs, 1, wx.ALL | wx.EXPAND, 20)
 		self.page.SetSizer(self.sizer)

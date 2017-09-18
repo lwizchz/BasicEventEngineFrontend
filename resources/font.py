@@ -70,8 +70,6 @@ class BEEFFont(BEEFBaseResource):
 
 	def onTextSpecific(self, event):
 		return True
-	def onCheckBoxSpecific(self, event):
-		pass
 	def onButtonSpecific(self, event):
 		bt = event.GetEventObject()
 		if bt == self.inputs["bt_ok"]:
@@ -115,16 +113,12 @@ class BEEFFont(BEEFBaseResource):
 			dialog.Destroy()
 
 		return True
-	def onSliderSpecific(self, event):
-		pass
 	def onSpinCtrlSpecific(self, event):
 		sc = event.GetEventObject()
 		if sc == self.inputs["sc_size"]:
 			self.properties["size"] = sc.GetValue()
 			font = wx.Font(self.properties["size"], wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Courier")
 			self.inputs["st_test"].SetFont(font)
-	def onListEditSpecific(self, event):
-		pass
 
 	def update(self):
 		self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))

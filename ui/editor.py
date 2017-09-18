@@ -14,9 +14,10 @@ import wx.stc
 import math
 
 class BEEFEditor(wx.stc.StyledTextCtrl):
-	def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition, size=(1350,500), style=wx.LC_ICON, scale=2):
+	def __init__(self, top, parent, id=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.LC_ICON, scale=2):
 		wx.stc.StyledTextCtrl.__init__(self, parent, id, pos, size, style)
 
+		self.top = top
 		self.indent = 4
 
 		self.SetLexer(wx.stc.STC_LEX_CPP)
@@ -121,8 +122,8 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 		line_amount = self.GetText().count("\n")+1
 		self.SetMarginWidth(1, 12.5*(math.floor(math.log(line_amount, 10))+1))
 	def SetText(self, text):
-		self.UpdateMargins()
 		wx.stc.StyledTextCtrl.SetText(self, text)
+		self.UpdateMargins()
 	def OnCharAdded(self, event):
 		newline = ord("\r")
 		if not self.GetEOLMode() == wx.stc.STC_EOL_CR:
@@ -134,19 +135,22 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 			indent = self.GetLineIndentation(line-1)
 
 			last_line = self.GetLineText(line-1)
-			if last_line[-1] in "{[(":
+			if last_line and last_line[-1] in "{[(":
 				indent += self.indent
 
 			self.SetLineIndentation(line, indent)
-			self.GotoPos(self.GetCurrentPos()+indent)
+			self.GotoPos(self.GetCurrentPos()+1)
 		elif key == ord("}"):
 			line = self.GetCurrentLine()
-			indent = self.GetLineIndentation(line-1)
+			if self.GetLine(line).strip() == "}":
+				indent = self.GetLineIndentation(line-1)
 
-			indent -= self.indent
+				indent -= self.indent
 
-			self.SetLineIndentation(line, indent)
-			self.GotoPos(self.GetCurrentPos()+indent)
+				self.SetLineIndentation(line, indent)
+				self.GotoPos(self.GetCurrentPos()+indent)
+
+		self.top.setUnsaved()
 
 		self.UpdateMargins()
 		self.Colourise(0, -1)
