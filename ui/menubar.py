@@ -48,7 +48,7 @@ class BEEFMenuBar(wx.MenuBar):
 		self.Append(menu4, "&Help")
 
 		self.wildcards = (
-			"BEE Project File (*.bpf)|*.bpf|"
+			"BEE Project File (*.beef)|*.beef|"
 			"All files (*)|*"
 		)
 
@@ -113,7 +113,7 @@ class BEEFMenuBar(wx.MenuBar):
 
 			e = os.path.splitext(path)[1].strip()
 			if e == "":
-				path += ".bpf"
+				path += ".beef"
 
 			self.parent.save(path)
 
