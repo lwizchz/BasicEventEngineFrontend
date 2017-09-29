@@ -326,7 +326,8 @@ class BEEFFrame(wx.Frame):
 			self.meshes, self.lights, self.objects, self.rooms
 		)
 		for r in resources:
-			r.commitPage()
+			if r:
+				r.commitPage()
 
 		for i in range(len(self.editDialogs)):
 			if self.editDialogs[i].text.GetValue() == self.editDialogs[i].getDefault():

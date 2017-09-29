@@ -43,14 +43,14 @@ class BEEFSound(BEEFBaseResource):
 		if self.properties["path"]:
 			self.sound = wx.adv.Sound(self.top.tmpDir+self.properties["path"])
 
-		playsizer = wx.BoxSizer()
+		playSizer = wx.BoxSizer()
 		bt_play = self.pageMakeBmpbutton("bt_play", "images/sound/play.png", tooltip="Play Sound")
-		playsizer.Add(bt_play, 1, wx.ALL | wx.EXPAND, 0)
+		playSizer.Add(bt_play, 1, wx.ALL | wx.EXPAND, 0)
 		bt_loop = self.pageMakeBmpbutton("bt_loop", "images/sound/loop.png", tooltip="Loop Sound")
-		playsizer.Add(bt_loop, 1, wx.ALL | wx.EXPAND, 0)
+		playSizer.Add(bt_loop, 1, wx.ALL | wx.EXPAND, 0)
 		bt_stop = self.pageMakeBmpbutton("bt_stop", "images/sound/stop.png", tooltip="Stop Sound")
-		playsizer.Add(bt_stop, 1, wx.ALL | wx.EXPAND, 0)
-		self.gbs.Add(playsizer, (4,1), (1,1))
+		playSizer.Add(bt_stop, 1, wx.ALL | wx.EXPAND, 0)
+		self.gbs.Add(playSizer, (4,1), (1,1))
 
 		path = self.properties["path"]
 		self.pageAddStatictext("Path: {}".format(path), (5,0), name="st_path")

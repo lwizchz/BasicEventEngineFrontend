@@ -24,7 +24,7 @@ class BEEFTimeline(BEEFBaseResource):
 		self.path = "/resources/timelines/"
 		self.type = 5
 		self.properties = {
-			"actions": [], # Each action is the following: (timestamp, "name", "code")
+			"actions": [], # Each action is as follows: (timestamp, "name", "code")
 			"end_action": ""
 		}
 		self.tmpActions = []
@@ -45,6 +45,7 @@ class BEEFTimeline(BEEFBaseResource):
 		for time, name, code in self.properties["actions"]:
 			self.addListRow("lst_actions", (time, name))
 			self.tmpActions.append(code)
+		self.inputs["lst_actions"].SetColumnWidth(1, -1)
 
 		self.pageAddButton("bt_add_action", "Add Action", (3,0))
 		self.pageAddButton("bt_remove_action", "Remove Action", (3,1))
@@ -79,7 +80,7 @@ class BEEFTimeline(BEEFBaseResource):
 			if 0 <= self.lastSelected < len(self.tmpActions):
 				self.tmpActions[self.lastSelected] = self.inputs["ed_action"].GetText()
 
-			self.addListRow("lst_actions", ("0", "anonymous"))
+			self.addListRow("lst_actions", ["0", "anonymous"])
 
 			self.lastSelected = len(self.tmpActions)
 			for i in range(self.lastSelected):
@@ -90,6 +91,7 @@ class BEEFTimeline(BEEFBaseResource):
 			ed = self.inputs["ed_action"]
 			ed.SetText("")
 			ed.EmptyUndoBuffer()
+			ed.SetFocus()
 
 			self.inputs["lst_actions"].SetColumnWidth(1, -1)
 		elif bt == self.inputs["bt_remove_action"] and len(self.tmpActions):
@@ -134,6 +136,8 @@ class BEEFTimeline(BEEFBaseResource):
 			ed.EmptyUndoBuffer()
 
 		return False
+	def onEditorSpecific(self, event):
+		return True
 
 	def update(self):
 		pass

@@ -9,6 +9,7 @@ try:
 except ImportError:
 	raise ImportError("The wxPython module is required to run this program")
 
+import sys
 import json
 import os
 
@@ -143,9 +144,14 @@ class BEEFBaseResource:
 
 		return bt
 	def pageMakeSpinctrl(self, name, min, max, value):
+		#self.inputs[name] = wx.SpinCtrl(self.page, size=(75,-1)) # Enough space for 6 digits but broken on some platforms
 		self.inputs[name] = wx.SpinCtrl(self.page)
 		sc = self.inputs[name]
 
+		if min is None:
+			min = -4294967296/2
+		if max is None:
+			max = 4294967295/2
 		sc.SetRange(min, max)
 		sc.SetValue(value)
 
@@ -153,6 +159,15 @@ class BEEFBaseResource:
 		self.page.Bind(wx.EVT_TEXT, self.onText, sc)
 
 		return sc
+	def pageMakeChoice(self, name, choices, default):
+		self.inputs[name] = wx.Choice(self.page, choices=choices)
+		ch = self.inputs[name]
+
+		ch.SetSelection(default)
+
+		self.page.Bind(wx.EVT_CHOICE, self.onChoice, ch)
+
+		return ch
 	def pageMakeListCtrl(self, name, columns):
 		self.inputs[name] = BEEFListCtrl(self.page, style=wx.LC_REPORT | wx.LC_EDIT_LABELS)
 		lst = self.inputs[name]
@@ -166,8 +181,8 @@ class BEEFBaseResource:
 
 		def _onListEdit(evt, source=lst):
 			return self.onListEdit(evt, source)
-		self.page.Bind(wx.EVT_LIST_END_LABEL_EDIT, _onListEdit)
-		self.page.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onListSelect)
+		self.page.Bind(wx.EVT_LIST_END_LABEL_EDIT, _onListEdit, lst)
+		self.page.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onListSelect, lst)
 
 		return lst
 	def pageMakePlot(self, name):
@@ -175,6 +190,10 @@ class BEEFBaseResource:
 		return self.inputs[name]
 	def pageMakeEditor(self, name):
 		self.inputs[name] = BEEFEditor(self.top, self.page)
+		ed = self.inputs[name]
+
+		self.page.Bind(wx.stc.EVT_STC_CHARADDED, self.onEditor, ed)
+
 		return self.inputs[name]
 
 	def pageAddStatictext(self, text, pos, size=(1,1), name=""):
@@ -209,6 +228,10 @@ class BEEFBaseResource:
 		sc = self.pageMakeSpinctrl(name, min, max, value)
 		self.gbs.Add(sc, pos, size)
 		return sc
+	def pageAddChoice(self, name, choices, default, pos, size=(1,1)):
+		ch = self.pageMakeChoice(name, choices, default)
+		self.gbs.Add(ch, pos, size)
+		return ch
 	def pageAddListCtrl(self, name, columns, pos, size=(1,1), flag=wx.EXPAND):
 		lst = self.pageMakeListCtrl(name, columns)
 		self.gbs.Add(lst, pos, size, flag=flag)
@@ -240,7 +263,7 @@ class BEEFBaseResource:
 		if rowIndex >= 0:
 			lst.DeleteItem(rowIndex)
 
-		if rowIndex < lst.GetItemCount():
+		if rowIndex < lst.GetItemCount() and rowIndex >= 0:
 			lst.Select(rowIndex)
 		else:
 			lst.Select(lst.GetItemCount()-1)
@@ -260,6 +283,9 @@ class BEEFBaseResource:
 	def onSpinCtrl(self, event):
 		if self.onSpinCtrlSpecific(event):
 			self.top.setUnsaved()
+	def onChoice(self, event):
+		if self.onChoiceSpecific(event):
+			self.top.setUnsaved()
 	def onListEdit(self, event, source):
 		# Editable ListCtrls do not properly implement validators
 		if not source.IsValid(event.GetItem().GetColumn(), event.GetItem().GetText()):
@@ -270,6 +296,9 @@ class BEEFBaseResource:
 			self.top.setUnsaved()
 	def onListSelect(self, event):
 		if self.onListSelectSpecific(event):
+			self.top.setUnsaved()
+	def onEditor(self, event):
+		if self.onEditorSpecific(event):
 			self.top.setUnsaved()
 
 	def onTextSpecific(self, event):
@@ -282,9 +311,13 @@ class BEEFBaseResource:
 		return False
 	def onSpinCtrlSpecific(self, event):
 		return False
+	def onChoiceSpecific(self, event):
+		return False
 	def onListEditSpecific(self, event):
 		return False
 	def onListSelectSpecific(self, event):
+		return False
+	def onEditorSpecific(self, event):
 		return False
 
 	def serialize(self):

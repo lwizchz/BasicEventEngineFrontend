@@ -74,7 +74,7 @@ class BEEFPath(BEEFBaseResource):
 		if bt == self.inputs["bt_ok"]:
 			self.destroyPage()
 		elif bt == self.inputs["bt_add_coord"]:
-			self.addListRow("lst_coordinates", ("0", "0", "0", "1"))
+			self.addListRow("lst_coordinates", ["0", "0", "0", "1"])
 			pl = self.inputs["pl_coordinates"]
 			pl.SetCoords(self.inputs["lst_coordinates"].GetItemList())
 			pl.Redraw()

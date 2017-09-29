@@ -41,7 +41,7 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 		orange1 = "#9c7048"
 		orange2 = "#b0873a"
 
-		font = "Courier New"
+		font = "Consolas"
 		size = 12
 		fs = "face:{},size:{}".format(font, size)
 		bfs = "back:{},{}".format(mono0, fs)
@@ -58,11 +58,12 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 		self.StyleSetSpec(wx.stc.STC_C_DEFAULT, "fore:{},{}".format(mono1, fs))
 		self.StyleSetSpec(wx.stc.STC_C_PREPROCESSOR, "fore:{},{}".format(purple, fs))
 		self.StyleSetSpec(wx.stc.STC_C_IDENTIFIER, "fore:{},{}".format(blue, fs))
+		#self.StyleSetSpec(wx.stc.STC_C_IDENTIFIER, "fore:{},{}".format(mono1, fs))
 		self.StyleSetSpec(wx.stc.STC_C_STRING, "fore:{},{}".format(green, fs))
 		self.StyleSetSpec(wx.stc.STC_C_NUMBER, "fore:{},{}".format(orange1, fs))
-		self.StyleSetSpec(wx.stc.STC_C_CHARACTER, "fore:{},{}".format(mono1, fs))
+		self.StyleSetSpec(wx.stc.STC_C_CHARACTER, "fore:{},{}".format(green, fs))
 		self.StyleSetSpec(wx.stc.STC_C_WORD, "fore:{},{}".format(purple, fs))
-		self.StyleSetSpec(wx.stc.STC_C_WORD2, "fore:{},{}".format(purple, fs))
+		#self.StyleSetSpec(wx.stc.STC_C_WORD2, "fore:{},{}".format(blue, fs))
 		self.StyleSetSpec(wx.stc.STC_C_OPERATOR, "fore:{},{}".format(mono1, fs))
 
 		self.StyleSetSpec(wx.stc.STC_C_STRINGEOL, "fore:{},{}".format(green, fs))
@@ -75,8 +76,9 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 		self.StyleSetSpec(wx.stc.STC_C_COMMENT, "fore:{},{},italic".format(mono3, fs))
 		self.StyleSetSpec(wx.stc.STC_C_COMMENTLINE, "fore:{},{},italic".format(mono3, fs))
 		self.StyleSetSpec(wx.stc.STC_C_COMMENTDOC, "fore:{},{},italic".format(mono3, fs))
-		self.StyleSetSpec(wx.stc.STC_C_COMMENTDOCKEYWORD, "fore:{},{},bold,italic".format(mono3, fs))
-		self.StyleSetSpec(wx.stc.STC_C_COMMENTDOCKEYWORDERROR, "fore:{},{},underline,italic".format(mono3, fs))
+		self.StyleSetSpec(wx.stc.STC_C_COMMENTLINEDOC, "fore:{},{},italic".format(mono3, fs))
+		self.StyleSetSpec(wx.stc.STC_C_COMMENTDOCKEYWORD, "fore:{},{},bold,italic".format(purple, fs))
+		self.StyleSetSpec(wx.stc.STC_C_COMMENTDOCKEYWORDERROR, "fore:{},{},underline,italic".format(purple, fs))
 
 		self.SetCaretForeground(wx.Colour(82, 139, 255))
 		self.SetCaretWidth(2)
@@ -91,21 +93,23 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 		self.SetTabWidth(self.indent)
 		self.SetIndentationGuides(1)
 
-		# Keywords
 		self.SetKeyWords(0,
+			# Keywords
 			"and and_eq asm bitand bitor break case catch compl const_cast "
 			"continue decltype default delete do dynamic_cast else false for "
 			"friend goto if new not not_eq noexcept nullptr operator or or_eq "
 			"private protected public reinterpret_cast return sizeof static "
 			"static_cast switch this throw true try typeid using while xor xor_eq"
-		)
-		# Types
-		self.SetKeyWords(1,
+
+			# Types
 			"auto bool char char16_t char32_t class const constexpr double enum "
 			"explicit export extern float inline int long mutable namespace "
 			"register short signed struct template typedef typename union "
 			"unsigned va_list virtual void volatile wchar_t"
 		)
+		"""self.SetKeyWords(1,
+			"+ - * / % ^ ! < > = &"
+		)"""
 		# Doc keywords
 		self.SetKeyWords(2,
 			"TODO FIXME XXX author brief bug callgraph category class code date "
@@ -139,7 +143,7 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 				indent += self.indent
 
 			self.SetLineIndentation(line, indent)
-			self.GotoPos(self.GetCurrentPos()+1)
+			self.GotoPos(self.GetCurrentPos()+indent/4)
 		elif key == ord("}"):
 			line = self.GetCurrentLine()
 			if self.GetLine(line).strip() == "}":
@@ -148,9 +152,8 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 				indent -= self.indent
 
 				self.SetLineIndentation(line, indent)
-				self.GotoPos(self.GetCurrentPos()+indent)
-
-		self.top.setUnsaved()
 
 		self.UpdateMargins()
 		self.Colourise(0, -1)
+
+		event.Skip()
