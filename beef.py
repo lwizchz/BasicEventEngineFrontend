@@ -40,6 +40,8 @@ from ui.notebook import BEEFNotebook
 from ui.editdialog import BEEFEditDialog
 from ui.filehandler import BEEFFileHandler
 
+from core.compiler import Compiler
+
 from resources.base import BEEFBaseResource
 from resources.sprite import BEEFSprite
 from resources.sound import BEEFSound
@@ -90,9 +92,12 @@ class BEEFFrame(wx.Frame):
 
 		self.images = {}
 		for n, p in {
-			"noimage": "images/noimage.png"
+			"noimage": "images/noimage.png",
+			"nosprite": "images/nosprite.png"
 		}.items():
 			self.images[n] = wx.Image(p)
+
+		self.compiler = Compiler(self)
 
 		self.init()
 
@@ -289,7 +294,7 @@ class BEEFFrame(wx.Frame):
 				r = BEEFObject(self, None)
 				r.deserialize(f.read())
 				self.addObject(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/room/*.json"):
+		for fn in glob.glob(self.tmpDir+"/resources/rooms/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFRoom(self, None)
 				r.deserialize(f.read())
@@ -476,6 +481,8 @@ class BEEFFrame(wx.Frame):
 			"beef_version_major": BEEF_VERSION_MAJOR,
 			"beef_version_minor": BEEF_VERSION_MINOR,
 			"beef_version_release": BEEF_VERSION_RELEASE,
+
+			"game_name": "BEE_Example",
 
 			"game_version_major": 0,
 			"game_version_minor": 0,

@@ -17,6 +17,7 @@ from ui.listctrl import BEEFListCtrl
 from ui.validators import BEEFValidatorGeneric
 from ui.plot import BEEFPlot
 from ui.editor import BEEFEditor
+from ui.grid import BEEFGrid
 
 class BEEFBaseResource:
 	def __init__(self, top, name):
@@ -131,7 +132,7 @@ class BEEFBaseResource:
 		bmp = None
 		if os.path.isfile(filename):
 			img = wx.Image(filename)
-			img.Rescale(*imgsize)
+			#img.Rescale(*imgsize)
 			bmp = wx.Bitmap(img)
 		else:
 			bmp = wx.Bitmap(self.top.images["noimage"])
@@ -189,11 +190,14 @@ class BEEFBaseResource:
 		self.inputs[name] = BEEFPlot(self.page)
 		return self.inputs[name]
 	def pageMakeEditor(self, name):
-		self.inputs[name] = BEEFEditor(self.top, self.page)
+		self.inputs[name] = BEEFEditor(self.page)
 		ed = self.inputs[name]
 
 		self.page.Bind(wx.stc.EVT_STC_CHARADDED, self.onEditor, ed)
 
+		return ed
+	def pageMakeGrid(self, name):
+		self.inputs[name] = BEEFGrid(self.page, self.top)
 		return self.inputs[name]
 
 	def pageAddStatictext(self, text, pos, size=(1,1), name=""):
@@ -244,6 +248,10 @@ class BEEFBaseResource:
 		ed = self.pageMakeEditor(name)
 		self.gbs.Add(ed, pos, size, flag=flag)
 		return ed
+	def pageAddGrid(self, name, pos, size=(1,1), flag=wx.EXPAND):
+		gr = self.pageMakeGrid(name)
+		self.gbs.Add(gr, pos, size, flag=flag)
+		return gr
 
 	def addListRow(self, name, rowData, isSortable=True):
 		lst = self.inputs[name]

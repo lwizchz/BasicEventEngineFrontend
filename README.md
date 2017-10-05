@@ -13,5 +13,23 @@ if you still have any questions or comments, feel free to email me. Also feel
 free to contribute to the engine code or make feature requests, preferably via
 Github. And above all, report bugs! :)
 
+## How to use
+
+*Compilation support will be added in the near future*
+
+1. Install wxPython and watchdog:
+
+        sudo pip install wxpython watchdog
+
+2. Download the BEE submodule:
+
+        git submodule update --init --recursive
+
+3. Open BEEF and add resources as needed:
+
+        ./beef.py
+
+4. Compile the project by selecting Build>Run
+
 This project is under the MIT License so feel free to do basically whatever you
 want with the code.

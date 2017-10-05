@@ -24,8 +24,7 @@ class BEEFSprite(BEEFBaseResource):
 			"path": "",
 			"width": 0,
 			"height": 0,
-			"subimage_amount": 0,
-			"subimage_width": 0,
+			"subimage_amount": 1,
 			"speed": 1.0
 		}
 
@@ -37,14 +36,16 @@ class BEEFSprite(BEEFBaseResource):
 		self.pageAddButton("bt_edit", "Edit Image", (2,0))
 		self.pageAddButton("bt_import", "Import", (2,1))
 
-		self.pageAddStatictext("Image:", (3,0))
+		self.pageAddStatictext("Subimage amount:", (3,0))
+		self.pageAddTextctrl("tc_subimage_amount", str(self.properties["subimage_amount"]), (3,1))
 
 		path = self.properties["path"]
 		imgpath = self.top.tmpDir+path
 
-		w = self.properties["width"]
+		w = self.properties["width"] // self.properties["subimage_amount"]
 		h = self.properties["height"]
 		self.pageAddBitmap("bmp_sprite", imgpath, (4,0), imgsize=self.getBmpSize((w, h), (128,128)))
+		self.cropBmp(self.properties["subimage_amount"])
 
 		self.pageAddStatictext("Dimensions: {}px by {}px".format(w, h), (5,0), name="st_dimensions")
 
@@ -68,8 +69,22 @@ class BEEFSprite(BEEFBaseResource):
 			w = maxH*w/h
 
 		return (w,h)
+	def cropBmp(self, subimage_amount):
+		w = self.properties["width"] // subimage_amount
+		h = self.properties["height"]
+
+		path = self.top.tmpDir + self.properties["path"]
+		if os.path.isfile(path):
+			self.inputs["bmp_sprite"].SetBitmap(wx.Bitmap(wx.Image(path)).GetSubBitmap(wx.Rect(
+				0, 0,
+				w, h
+			)))
 
 	def onTextSpecific(self, event):
+		tc = event.GetEventObject()
+		if tc == self.inputs["tc_subimage_amount"] and tc.GetValue():
+			self.cropBmp(int(tc.GetValue()))
+		
 		return True
 	def onButtonSpecific(self, event):
 		bt = event.GetEventObject()
@@ -136,6 +151,8 @@ class BEEFSprite(BEEFBaseResource):
 			tc_name = self.inputs["tc_name"]
 			if tc_name.GetValue() != self.name:
 				self.rename(tc_name.GetValue())
+			
+			self.properties["subimage_amount"] = int(self.inputs["tc_subimage_amount"].GetValue())
 	def moveTo(self, name, newfile):
 		if self.properties["path"]:
 			ext = os.path.splitext(self.properties["path"])[1]

@@ -10,6 +10,10 @@ class ELight:
 	POINT = 3
 	SPOT = 4
 
+class ECompile:
+	DEBUG = 0
+	RELEASE = 1
+
 class EEvent:
 	_events = [
 		"Update",
@@ -114,3 +118,8 @@ class EEvent:
 			return "bee::Instance* self, SDL_Event* e"
 		elif event == "Network":
 			return "bee::Instance* self, const NetworkEvent& e"
+	@staticmethod
+	def getParamTypes(event):
+		params = EEvent.getParams(event)
+		params = params.split(",")
+		return ", ".join([p.rpartition(" ")[0] for p in params])

@@ -26,6 +26,7 @@ class BEEFFont(BEEFBaseResource):
 			"size": 24,
 			"lineskip": 0
 		}
+		self.font = None
 
 	def getTestString(self):
 		s = ""
@@ -49,20 +50,36 @@ class BEEFFont(BEEFBaseResource):
 		self.pageAddTextctrl("tc_name", self.name, (1,0), (1,2))
 		self.pageAddButton("bt_import", "Import", (2,0))
 
-		self.pageAddStatictext("Size:", (3,0))
-		self.pageAddSpinctrl("sc_size", 1, 1000, self.properties["size"], (4,0))
+		e = wx.FontEnumerator()
+		e.EnumerateFacenames()
+		fontFaces = [""] + e.GetFacenames()
+		fontFaces.sort()
+		fontIndex = -1
+		fontName = self.properties["path"]
+		try:
+			if fontName and fontName[0] == "$":
+				fontName = fontName[1:]
+				fontIndex = fontFaces.index(fontName)
+			else:
+				fontName = ""
+		except ValueError:
+			pass
+		self.pageAddChoice("ch_font", fontFaces, fontIndex, (3,0))
 
-		self.pageAddStatictext("Lineskip: (0 for font default)", (5,0))
-		self.pageAddSpinctrl("sc_lineskip", 0, 100, self.properties["lineskip"], (6,0))
+		self.pageAddStatictext("Size:", (4,0))
+		self.pageAddSpinctrl("sc_size", 1, 1000, self.properties["size"], (4,1))
 
-		self.pageAddStatictext("Path: {}".format(self.properties["path"]), (7,0), name="st_path")
+		self.pageAddStatictext("Lineskip: (0 for default)", (5,0))
+		self.pageAddSpinctrl("sc_lineskip", 0, 100, self.properties["lineskip"], (5,1))
 
-		self.pageAddButton("bt_ok", "OK", (8,0))
+		self.pageAddStatictext("Path: {}".format(self.properties["path"]), (6,0), name="st_path")
+
+		self.pageAddButton("bt_ok", "OK", (7,0))
 
 		# Column 2
-		self.pageAddStatictext(self.getTestString(), (0,2), (8,1), name="st_test")
-		font = wx.Font(self.properties["size"], wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Courier")
-		self.inputs["st_test"].SetFont(font)
+		self.pageAddStatictext(self.getTestString(), (0,2), (7,1), name="st_test")
+		self.font = wx.Font(self.properties["size"], wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, fontName)
+		self.inputs["st_test"].SetFont(self.font)
 
 		self.sizer = wx.BoxSizer()
 		self.sizer.Add(self.gbs, 1, wx.ALL | wx.EXPAND, 20)
@@ -116,9 +133,14 @@ class BEEFFont(BEEFBaseResource):
 	def onSpinCtrlSpecific(self, event):
 		sc = event.GetEventObject()
 		if sc == self.inputs["sc_size"]:
-			self.properties["size"] = sc.GetValue()
-			font = wx.Font(self.properties["size"], wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Courier")
-			self.inputs["st_test"].SetFont(font)
+			self.font.SetPointSize(sc.GetValue())
+			self.inputs["st_test"].SetFont(self.font)
+	def onChoiceSpecific(self, event):
+		ch = event.GetEventObject()
+		if ch == self.inputs["ch_font"]:
+			self.font = wx.Font(self.inputs["sc_size"].GetValue(), wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, ch.GetString(ch.GetSelection()))
+			self.inputs["st_test"].SetFont(self.font)
+		return True
 
 	def update(self):
 		self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
@@ -128,6 +150,14 @@ class BEEFFont(BEEFBaseResource):
 			tc_name = self.inputs["tc_name"]
 			if tc_name.GetValue() != self.name:
 				self.rename(tc_name.GetValue())
+
+			self.properties["size"] = self.inputs["sc_size"].GetValue()
+			self.properties["lineskip"] = self.inputs["sc_lineskip"].GetValue()
+			
+			ch = self.inputs["ch_font"]
+			fontName = ch.GetString(ch.GetSelection())
+			if fontName:
+				self.properties["path"] = "$" + fontName
 	def moveTo(self, name, newfile):
 		if self.properties["path"]:
 			ext = os.path.splitext(self.properties["path"])[1]

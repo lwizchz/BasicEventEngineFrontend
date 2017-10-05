@@ -12,6 +12,8 @@ except ImportError:
 import os
 import webbrowser
 
+from resources.enum import ECompile
+
 class BEEFMenuBar(wx.MenuBar):
 	def __init__(self, parent):
 		wx.MenuBar.__init__(self)
@@ -134,13 +136,15 @@ class BEEFMenuBar(wx.MenuBar):
 		pass
 
 	def MenuBuildRun(self, event):
-		pass
+		self.parent.compiler.compile(ECompile.DEBUG)
+		self.parent.compiler.run()
 	def MenuBuildDebug(self, event):
-		pass
+		self.parent.compiler.compile(ECompile.DEBUG)
+		self.parent.compiler.debug()
 	def MenuBuildClean(self, event):
-		pass
+		self.parent.compiler.clean()
 	def MenuBuildPackage(self, event):
-		pass
+		self.parent.compiler.package()
 
 	def MenuHelpBug(self, event):
 		webbrowser.open_new_tab("https://github.com/piluke/BasicEventEngineFrontend/issues/new")

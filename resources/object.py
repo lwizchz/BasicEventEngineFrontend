@@ -63,6 +63,18 @@ class BEEFObject(BEEFBaseResource):
 		ed.SetText(self.tmpEvents[self.getSelectedEvent(self.lastSelected)][1])
 		ed.EmptyUndoBuffer()
 
+	def getImplementedEvents(self):
+		return ["bee::E_EVENT::{}".format(EEvent.get(event).upper().replace(" ", "_")) for event, data in self.tmpEvents.items()]
+	def getEvents(self):
+		return [data[1] for event, data in self.tmpEvents.items()]
+	def getEventHeaders(self):
+		def getConst(event):
+			if event == EEvent.getIndex("Check Collision Filter"):
+				return " const"
+			return ""
+
+		return ["void {event}({params}){const};".format(event=EEvent.get(event).lower().replace(" ", "_"), params=EEvent.getParamTypes(EEvent.get(event)), const=getConst(event)) for event, data in self.tmpEvents.items()]
+
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
 
@@ -70,7 +82,18 @@ class BEEFObject(BEEFBaseResource):
 		self.pageAddStatictext("Name:", (0,0))
 		self.pageAddTextctrl("tc_name", self.name, (1,0), (1,2))
 
-		lst = self.pageAddListCtrl("lst_events", ["Events"], (2,0), (1,2)) # Perhaps replace with a Grid
+		self.pageAddStatictext("Sprite:", (2,0))
+		spriteList = [""] + [s.name for s in self.top.sprites]
+		spriteIndex = -1
+		try:
+			spriteIndex = spriteList.index(self.properties["sprite"])
+		except ValueError:
+			pass
+		self.pageAddChoice("ch_sprite", spriteList, spriteIndex, (2,1))
+
+		self.pageAddCheckbox("cb_is_persistent", "Persistent", (3,0), self.properties["is_persistent"])
+
+		lst = self.pageAddListCtrl("lst_events", ["Events"], (4,0), (1,2)) # Perhaps replace with a Grid
 		lst.SetColumnWidth(0, lst.GetSize()[0]/2)
 
 		self.tmpEvents = {}
@@ -86,14 +109,14 @@ class BEEFObject(BEEFBaseResource):
 
 			index += 1
 
-		self.pageAddButton("bt_add_event", "Add Event", (3,0))
-		self.pageAddButton("bt_remove_event", "Remove Event", (3,1))
+		self.pageAddButton("bt_add_event", "Add Event", (5,0))
+		self.pageAddButton("bt_remove_event", "Remove Event", (5,1))
 
-		self.pageAddButton("bt_ok", "OK", (4,0))
+		self.pageAddButton("bt_ok", "OK", (6,0))
 
 		# Column 2
 		self.lastSelected = -1
-		ed = self.pageAddEditor("ed_event", (0,3), (4,1))
+		ed = self.pageAddEditor("ed_event", (0,3), (6,1))
 		if len(self.tmpEvents) > 0:
 			ed.SetText(firstEventCode)
 			lst.Select(0)
@@ -101,7 +124,7 @@ class BEEFObject(BEEFBaseResource):
 		else:
 			ed.Enable(False)
 
-		self.gbs.AddGrowableRow(2)
+		self.gbs.AddGrowableRow(4)
 		self.gbs.AddGrowableCol(3)
 		self.sizer = wx.BoxSizer()
 		self.sizer.Add(self.gbs, 1, wx.ALL | wx.EXPAND, 20)
@@ -110,7 +133,9 @@ class BEEFObject(BEEFBaseResource):
 	def onTextSpecific(self, event):
 		tc = event.GetEventObject()
 		if tc == self.inputs["tc_name"]:
-			pass # TODO: Handle name changes within the code
+			pass # TODO: Handle name changes within the user's code
+		return True
+	def onCheckBoxSpecific(self, event):
 		return True
 	def onButtonSpecific(self, event):
 		bt = event.GetEventObject()
@@ -140,7 +165,7 @@ class BEEFObject(BEEFBaseResource):
 			c = ""
 			if newEvent in ["Check Collision Filter"]:
 				c = "const "
-			initialCode = self.initialEventCode.format(objname=self.name, event=newEvent.lower().replace(" ", "_"), params=EEvent.getParams(newEvent), const=c)
+			initialCode = self.initialEventCode.format(objname=self.name.replace("_", " ").title().replace(" ", ""), event=newEvent.lower().replace(" ", "_"), params=EEvent.getParams(newEvent), const=c)
 
 			self.lastSelected = len(self.tmpEvents)
 			for i in range(self.lastSelected):
@@ -178,6 +203,8 @@ class BEEFObject(BEEFBaseResource):
 			ed.EmptyUndoBuffer()
 
 		return True
+	def onChoiceSpecific(self, event):
+		return True
 	def onListEditSpecific(self, event):
 		event.Veto()
 		return False
@@ -202,6 +229,10 @@ class BEEFObject(BEEFBaseResource):
 			tc_name = self.inputs["tc_name"]
 			if tc_name.GetValue() != self.name:
 				self.rename(tc_name.GetValue())
+
+			ch = self.inputs["ch_sprite"]
+			self.properties["sprite"] = ch.GetString(ch.GetSelection())
+			self.properties["is_persistent"] = self.inputs["cb_is_persistent"].GetValue()
 
 			if 0 <= self.lastSelected < len(self.tmpEvents):
 				self.tmpEvents[self.getSelectedEvent(self.lastSelected)][1] = self.inputs["ed_event"].GetText()
