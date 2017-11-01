@@ -6,33 +6,86 @@
 
 import os
 import errno
+import subprocess
+import shutil
 
 from resources.enum import ECompile
+
+def copytree(src, dst, symlinks=False):
+	names = os.listdir(src)
+	if not os.path.isdir(dst):
+		os.makedirs(dst)
+	errors = []
+	for name in names:
+		srcname = os.path.join(src, name)
+		dstname = os.path.join(dst, name)
+		try:
+			if symlinks and os.path.islink(srcname):
+				linkto = os.readlink(srcname)
+				os.symlink(linkto, dstname)
+			elif os.path.isdir(srcname):
+				copytree(srcname, dstname, symlinks)
+			else:
+				shutil.copy2(srcname, dstname)
+			# XXX What about devices, sockets etc.?
+		except OSError as why:
+			errors.append((srcname, dstname, str(why)))
+	try:
+		shutil.copystat(src, dst)
+	except OSError as why:
+		# can't copy file access times on Windows
+		if why.winerror is None:
+			errors.extend((src, dst, str(why)))
+	if errors:
+		raise Error(errors)
 
 class Compiler:
 	def __init__(self, top):
 		self.top = top
-		self.buildDir = "build"
+		self.srcDir = "{}/BasicEventEngine".format(self.top.getDir())
+		self.resDir = "{}/resources".format(self.srcDir)
 
 	def compile(self, type):
 		print("Generating {} resources...".format(self.top.gameCfg["game_name"]))
-		self._createDir(self.buildDir)
+		self._createDir(self.resDir)
 		self._generate()
 
 		if type == ECompile.DEBUG:
 			print("Compiling {} in debug mode...".format(self.top.gameCfg["game_name"]))
+			self.top.SetStatusText("Compiling game...")
+			rc = subprocess.call(["./build.sh", "debug", "build", "echo"], cwd="{}".format(self.srcDir))
+			if rc != 0:
+				self.top.SetStatusText("Compile failed!")
+				return 2
+			self.top.SetStatusText("")
 		elif type == ECompile.RELEASE:
 			print("Compiling {} in release mode...".format(self.top.gameCfg["game_name"]))
+			self.top.SetStatusText("Compiling game...")
+			rc = subprocess.call(["./build.sh", "release", "build", "echo"], cwd="{}".format(self.srcDir))
+			if rc != 0:
+				self.top.SetStatusText("Compile failed!")
+				return 2
+			self.top.SetStatusText("")
 		else:
 			print("Unknown compile type: {}".format(type))
+			return 1
+
+		return 0
 	def run(self):
 		print("Running {}...".format(self.top.gameCfg["game_name"]))
+		copytree("{}/resources".format(self.top.tmpDir), "{}/resources".format(self.srcDir))
+		subprocess.Popen(["./build/{}".format(self.top.gameCfg["game_name"]), "--no-assert"], cwd="{}".format(self.srcDir))
 	def debug(self):
 		print("Debugging {}...".format(self.top.gameCfg["game_name"]))
+		subprocess.Popen(["gdb", "./build/{}".format(self.top.gameCfg["game_name"])], cwd="{}".format(self.srcDir))
 	def clean(self):
 		print("Cleaning {}...".format(self.top.gameCfg["game_name"]))
+		#subprocess.call(["./build.sh", "clean", "build"], cwd="{}".format(self.srcDir))
+		subprocess.call(["git", "clean", "-fd"], cwd=self.srcDir)
+		subprocess.call(["git", "reset", "HEAD", "--hard"], cwd=self.srcDir)
 	def package(self):
 		print("Packaging {}...".format(self.top.gameCfg["game_name"]))
+		subprocess.call(["./package.sh"], cwd="{}".format(self.srcDir))
 
 	def _createDir(self, path):
 		try:
@@ -47,7 +100,7 @@ class Compiler:
 		self._generateResources()
 		self._generateCMake()
 	def _generateObjects(self):
-		self._createDir(self.buildDir+"/objects")
+		self._createDir(self.resDir+"/objects")
 
 		headerTemplate = ""
 		with open("templates/object.hpp", "r") as headerTemplateFile:
@@ -74,12 +127,12 @@ class Compiler:
 				is_persistent=is_persistent,
 				events="\n".join(o.getEvents())
 			)
-			with open("{}/objects/{}.hpp".format(self.buildDir, o.name), "w") as objHeaderFile:
+			with open("{}/objects/{}.hpp".format(self.resDir, o.name), "w") as objHeaderFile:
 				objHeaderFile.write(objHeader)
-			with open("{}/objects/{}.cpp".format(self.buildDir, o.name), "w") as objFile:
+			with open("{}/objects/{}.cpp".format(self.resDir, o.name), "w") as objFile:
 				objFile.write(obj)
 	def _generateRooms(self):
-		self._createDir(self.buildDir+"/rooms")
+		self._createDir(self.resDir+"/rooms")
 
 		headerTemplate = ""
 		with open("templates/room.hpp", "r") as headerTemplateFile:
@@ -98,17 +151,47 @@ class Compiler:
 				capname=r.name.upper(),
 				name=r.name,
 				roomname=r.name.replace("_", " ").title().replace(" ", ""),
+				width=r.properties["width"],
+				height=r.properties["height"],
+				gravity=r.properties["gravity"],
 				events="\n".join(r.getEvents())
 			)
-			with open("{}/rooms/{}.hpp".format(self.buildDir, r.name), "w") as roomHeaderFile:
+			with open("{}/rooms/{}.hpp".format(self.resDir, r.name), "w") as roomHeaderFile:
 				roomHeaderFile.write(roomHeader)
-			with open("{}/rooms/{}.cpp".format(self.buildDir, r.name), "w") as roomFile:
+			with open("{}/rooms/{}.cpp".format(self.resDir, r.name), "w") as roomFile:
 				roomFile.write(room)
-			with open("{}/rooms/{}.csv".format(self.buildDir, r.name), "w") as instanceFile:
+			with open("{}/rooms/{}.csv".format(self.resDir, r.name), "w") as instanceFile:
 				instanceFile.write("\n".join(r.getInstanceMap()))
+
+		mainTemplate = ""
+		with open("templates/main.cpp", "r")  as mainTemplateFile:
+			mainTemplate = mainTemplateFile.read()
+		main = mainTemplate.format(
+			first_room=self.top.rooms[0].name
+		)
+		with open("{}/main.cpp".format(self.srcDir), "w") as mainFile:
+			mainFile.write(main)
 	def _generateResources(self):
+		resourcesHeader = ""
+		with open("templates/resources.hpp", "r") as resourcesHeaderTemplate:
+			resourcesHeader = resourcesHeaderTemplate.read()
+		resourcesHeader = resourcesHeader.format(
+			spriteDefines="\n".join(["extern bee::Sprite* {};".format(s.name) for s in self.top.sprites]),
+			soundDefines="\n".join(["extern bee::Sound* {};".format(s.name) for s in self.top.sounds]),
+			backgroundDefines="\n".join(["extern bee::Background* {};".format(b.name) for b in self.top.backgrounds]),
+			fontDefines="\n".join(["extern bee::Font* {};".format(f.name) for f in self.top.fonts]),
+			pathDefines="\n".join(["extern bee::Path* {};".format(p.name) for p in self.top.paths]),
+			timelineDefines="\n".join(["extern bee::Timeline* {};".format(t.name) for t in self.top.timelines]),
+			meshDefines="\n".join(["extern bee::Mesh* {};".format(m.name) for m in self.top.meshes]),
+			lightDefines="\n".join(["extern bee::Light* {};".format(l.name) for l in self.top.lights]),
+			objectDefines="\n".join(["extern bee::Object* {};".format(o.name) for o in self.top.objects]),
+			roomDefines="\n".join(["extern bee::Room* {};".format(r.name) for r in self.top.rooms])
+		)
+		with open(self.resDir+"/resources.hpp", "w") as resourcesHeaderFile:
+			resourcesHeaderFile.write(resourcesHeader)
+
 		resources = ""
-		with open("templates/resources.hpp", "r") as resourcesTemplate:
+		with open("templates/resources.cpp", "r") as resourcesTemplate:
 			resources = resourcesTemplate.read()
 		resources = resources.format(
 			spriteDefines="\n".join(["bee::Sprite* {} = nullptr;".format(s.name) for s in self.top.sprites]),
@@ -125,16 +208,16 @@ class Compiler:
 			objectIncludes="\n".join(["#include \"objects/{}.hpp\"".format(o.name) for o in self.top.objects]),
 			roomIncludes="\n".join(["#include \"rooms/{}.hpp\"".format(r.name) for r in self.top.rooms]),
 
-			spriteInits="\n\t\t".join(["{name} = new Sprite(\"{name}\", \"{path}\");".format(name=s.name, path=s.name+".png") for s in self.top.sprites]),
-			soundInits="\n\t\t".join(["{name} = new Sound(\"{name}\", \"{path}\", false);".format(name=s.name, path=s.name+".wav") for s in self.top.sounds]),
-			backgroundInits="\n\t\t".join(["{name} = new Background(\"{name}\", \"{path}\");".format(name=b.name, path=b.name+".png") for b in self.top.backgrounds]),
-			fontInits="\n\t\t".join(["{name} = new Font(\"{name}\", \"{path}\", {size}, false);".format(name=f.name, path=f.name+".ttf", size=f.properties["size"]) for f in self.top.fonts]),
-			pathInits="\n\t\t".join(["{name} = new Path(\"{name}\", \"\");".format(name=p.name) for p in self.top.paths]),
-			timelineInits="\n\t\t".join(["{name} = new Timeline(\"{name}\", \"\");".format(name=t.name) for t in self.top.timelines]),
-			meshInits="\n\t\t".join(["{name} = new Mesh(\"{name}\", \"{path}\");".format(name=m.name, path=m.name+".obj") for m in self.top.meshes]),
-			lightInits="\n\t\t".join(["{name} = new Light(\"{name}\", \"\");".format(name=l.name) for l in self.top.lights]),
-			objectInits="\n\t\t".join(["{name} = new {objname}();".format(name=o.name, objname=o.name.replace("_", " ").title().replace(" ", "")) for o in self.top.objects]),
-			roomInits="\n\t\t".join(["{name} = new {roomname}();".format(name=r.name, roomname=r.name.replace("_", " ").title().replace(" ", "")) for r in self.top.rooms]),
+			spriteInits="\n\t\t".join(["{name} = new Sprite(\"{name}\", \"{path}\");{extra}".format(name=s.name, path=s.name+".png", extra=s.getInit()) for s in self.top.sprites]),
+			soundInits="\n\t\t".join(["{name} = new Sound(\"{name}\", \"{path}\", false);{extra}".format(name=s.name, path=s.name+".wav", extra=s.getInit()) for s in self.top.sounds]),
+			backgroundInits="\n\t\t".join(["{name} = new Background(\"{name}\", \"{path}\");{extra}".format(name=b.name, path=b.name+".png", extra=b.getInit()) for b in self.top.backgrounds]),
+			fontInits="\n\t\t".join(["{name} = new Font(\"{name}\", \"{path}\", {size}, false);{extra}".format(name=f.name, path=f.name+".ttf", size=f.properties["size"], extra=f.getInit()) for f in self.top.fonts]),
+			pathInits="\n\t\t".join(["{name} = new Path(\"{name}\", \"\");{extra}".format(name=p.name, extra=p.getInit()) for p in self.top.paths]),
+			timelineInits="\n\t\t".join(["{name} = new Timeline(\"{name}\", \"\");{extra}".format(name=t.name, extra=t.getInit()) for t in self.top.timelines]),
+			meshInits="\n\t\t".join(["{name} = new Mesh(\"{name}\", \"{path}\");{extra}".format(name=m.name, path=m.name+".obj", extra=m.getInit()) for m in self.top.meshes]),
+			lightInits="\n\t\t".join(["{name} = new Light(\"{name}\", \"\");{extra}".format(name=l.name, extra=l.getInit()) for l in self.top.lights]),
+			objectInits="\n\t\t".join(["{name} = new {objname}();{extra}".format(name=o.name, objname=o.name.replace("_", " ").title().replace(" ", ""), extra=o.getInit()) for o in self.top.objects]),
+			roomInits="\n\t\t".join(["{name} = new {roomname}();{extra}".format(name=r.name, roomname=r.name.replace("_", " ").title().replace(" ", ""), extra=r.getInit()) for r in self.top.rooms]),
 
 			spriteDeletes="\n\t".join(["DEL({});".format(s.name) for s in self.top.sprites]),
 			soundDeletes="\n\t".join(["DEL({});".format(s.name) for s in self.top.sounds]),
@@ -147,15 +230,29 @@ class Compiler:
 			objectDeletes="\n\t".join(["DEL({});".format(o.name) for o in self.top.objects]),
 			roomDeletes="\n\t".join(["DEL({});".format(r.name) for r in self.top.rooms])
 		)
-		with open(self.buildDir+"/resources.hpp", "w") as resourcesFile:
+		with open(self.resDir+"/resources.cpp", "w") as resourcesFile:
 			resourcesFile.write(resources)
 	def _generateCMake(self):
+		config = ""
+		with open("templates/config.sh", "r") as configTemplate:
+			config = configTemplate.read()
+		config = config.format(
+			game=self.top.gameCfg["game_name"],
+			v_major=self.top.gameCfg["game_version_major"],
+			v_minor=self.top.gameCfg["game_version_minor"],
+			v_release=self.top.gameCfg["game_version_release"]
+		)
+		with open(self.srcDir+"/config.sh", "w") as configFile:
+			configFile.write(config)
+
 		cmake = ""
-		with open("templates/CMakeLists.txt", "r") as cmakeTemplate:
+		with open("templates/resources.CMakeLists.txt", "r") as cmakeTemplate:
 			cmake = cmakeTemplate.read()
 		cmake = cmake.format(
 			objects=" ".join(["objects/{}.cpp".format(obj.name) for obj in self.top.objects]),
 			rooms=" ".join(["rooms/{}.cpp".format(room.name) for room in self.top.rooms])
 		)
-		with open(self.buildDir+"/CMakeLists.txt", "w") as cmakeFile:
+		with open(self.resDir+"/CMakeLists.txt", "w") as cmakeFile:
 			cmakeFile.write(cmake)
+
+		shutil.copyfile("templates/CMakeLists.txt", "{}/CMakeLists.txt".format(self.srcDir))

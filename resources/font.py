@@ -14,6 +14,7 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EFontStyle
 
 class BEEFFont(BEEFBaseResource):
 	def __init__(self, top, name):
@@ -22,7 +23,7 @@ class BEEFFont(BEEFBaseResource):
 		self.type = 3
 		self.properties = {
 			"path": "",
-			"style": "regular",
+			"style": EFontStyle.NORMAL,
 			"size": 24,
 			"lineskip": 0
 		}
@@ -41,6 +42,14 @@ class BEEFFont(BEEFBaseResource):
 			s += chr(ord("0")+i)
 
 		return s
+
+	def getInit(self):
+		init = ""
+		if self.properties["style"] != EFontStyle.NORMAL:
+			init += "\n\t\t\t{name}->set_style(TTF_STYLE_{style});".format(name=self.name, style=EFontStyle.str(self.properties["style"]))
+		if self.properties["lineskip"] != 0:
+			init += "\n\t\t\t{name}->set_lineskip({skip});".format(name=self.name, skip=self.properties["lineskip"])
+		return init
 
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
@@ -69,15 +78,18 @@ class BEEFFont(BEEFBaseResource):
 		self.pageAddStatictext("Size:", (4,0))
 		self.pageAddSpinctrl("sc_size", 1, 1000, self.properties["size"], (4,1))
 
-		self.pageAddStatictext("Lineskip: (0 for default)", (5,0))
-		self.pageAddSpinctrl("sc_lineskip", 0, 100, self.properties["lineskip"], (5,1))
+		self.pageAddStatictext("Style:", (5,0))
+		self.pageAddChoice("ch_style", [EFontStyle.str(s).title() for s in range(0, EFontStyle._MAX)], self.properties["style"], (5,1))
 
-		self.pageAddStatictext("Path: {}".format(self.properties["path"]), (6,0), name="st_path")
+		self.pageAddStatictext("Lineskip: (0 for default)", (6,0))
+		self.pageAddSpinctrl("sc_lineskip", 0, 100, self.properties["lineskip"], (6,1))
 
-		self.pageAddButton("bt_ok", "OK", (7,0))
+		self.pageAddStatictext("Path: {}".format(self.properties["path"]), (7,0), name="st_path")
+
+		self.pageAddButton("bt_ok", "OK", (8,0))
 
 		# Column 2
-		self.pageAddStatictext(self.getTestString(), (0,2), (7,1), name="st_test")
+		self.pageAddStatictext(self.getTestString(), (0,2), (8,1), name="st_test")
 		self.font = wx.Font(self.properties["size"], wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, fontName)
 		self.inputs["st_test"].SetFont(self.font)
 
@@ -137,7 +149,7 @@ class BEEFFont(BEEFBaseResource):
 			self.inputs["st_test"].SetFont(self.font)
 	def onChoiceSpecific(self, event):
 		ch = event.GetEventObject()
-		if ch == self.inputs["ch_font"]:
+		if ch == self.inputs["ch_font"] and ch.GetSelection() > 0:
 			self.font = wx.Font(self.inputs["sc_size"].GetValue(), wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, ch.GetString(ch.GetSelection()))
 			self.inputs["st_test"].SetFont(self.font)
 		return True
@@ -152,8 +164,9 @@ class BEEFFont(BEEFBaseResource):
 				self.rename(tc_name.GetValue())
 
 			self.properties["size"] = self.inputs["sc_size"].GetValue()
+			self.properties["style"] = self.inputs["ch_style"].GetSelection()
 			self.properties["lineskip"] = self.inputs["sc_lineskip"].GetValue()
-			
+
 			ch = self.inputs["ch_font"]
 			fontName = ch.GetString(ch.GetSelection())
 			if fontName:

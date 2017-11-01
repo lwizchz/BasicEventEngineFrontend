@@ -14,7 +14,7 @@ import wx.stc
 import math
 
 class BEEFEditor(wx.stc.StyledTextCtrl):
-	def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.LC_ICON, scale=2):
+	def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.LC_ICON):
 		wx.stc.StyledTextCtrl.__init__(self, parent, id, pos, size, style)
 
 		self.indent = 4

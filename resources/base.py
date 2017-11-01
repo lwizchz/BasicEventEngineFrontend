@@ -36,6 +36,9 @@ class BEEFBaseResource:
 		self.name = name
 		self.properties = {}
 
+	def getInit(self):
+		return ""
+
 	def initPage(self):
 		if self.page:
 			if self.pageIndex < 0:

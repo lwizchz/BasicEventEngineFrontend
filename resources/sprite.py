@@ -28,6 +28,15 @@ class BEEFSprite(BEEFBaseResource):
 			"speed": 1.0
 		}
 
+	def getInit(self):
+		init = ""
+		if self.properties["subimage_amount"] > 1:
+			init += "\n\t\t\t{name}->set_subimage_amount({si_amount}, {si_width});".format(name=self.name, si_amount=self.properties["subimage_amount"], si_width=self.properties["width"]//self.properties["subimage_amount"])
+			if self.properties["speed"] != 1.0:
+				init += "\n\t\t\t{name}->set_speed({speed});".format(name=self.name, speed=self.properties["speed"])
+		init += "\n\t\t\t{name}->load();".format(name=self.name)
+		return init
+
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
 
@@ -39,19 +48,22 @@ class BEEFSprite(BEEFBaseResource):
 		self.pageAddStatictext("Subimage amount:", (3,0))
 		self.pageAddTextctrl("tc_subimage_amount", str(self.properties["subimage_amount"]), (3,1))
 
+		self.pageAddStatictext("Animation speed:", (4,0))
+		self.pageAddTextctrl("tc_speed", str(self.properties["speed"]), (4,1))
+
 		path = self.properties["path"]
 		imgpath = self.top.tmpDir+path
 
 		w = self.properties["width"] // self.properties["subimage_amount"]
 		h = self.properties["height"]
-		self.pageAddBitmap("bmp_sprite", imgpath, (4,0), imgsize=self.getBmpSize((w, h), (128,128)))
+		self.pageAddBitmap("bmp_sprite", imgpath, (5,0), imgsize=self.getBmpSize((w, h), (128,128)))
 		self.cropBmp(self.properties["subimage_amount"])
 
-		self.pageAddStatictext("Dimensions: {}px by {}px".format(w, h), (5,0), name="st_dimensions")
+		self.pageAddStatictext("Dimensions: {}px by {}px".format(w, h), (6,0), name="st_dimensions")
 
-		self.pageAddStatictext("Path: {}".format(path), (6,0), name="st_path")
+		self.pageAddStatictext("Path: {}".format(path), (7,0), name="st_path")
 
-		self.pageAddButton("bt_ok", "OK", (7,0))
+		self.pageAddButton("bt_ok", "OK", (8,0))
 
 		self.sizer = wx.BoxSizer()
 		self.sizer.Add(self.gbs, 1, wx.ALL | wx.EXPAND, 20)
@@ -84,7 +96,7 @@ class BEEFSprite(BEEFBaseResource):
 		tc = event.GetEventObject()
 		if tc == self.inputs["tc_subimage_amount"] and tc.GetValue():
 			self.cropBmp(int(tc.GetValue()))
-		
+
 		return True
 	def onButtonSpecific(self, event):
 		bt = event.GetEventObject()
@@ -151,8 +163,9 @@ class BEEFSprite(BEEFBaseResource):
 			tc_name = self.inputs["tc_name"]
 			if tc_name.GetValue() != self.name:
 				self.rename(tc_name.GetValue())
-			
+
 			self.properties["subimage_amount"] = int(self.inputs["tc_subimage_amount"].GetValue())
+			self.properties["speed"] = float(self.inputs["tc_speed"].GetValue())
 	def moveTo(self, name, newfile):
 		if self.properties["path"]:
 			ext = os.path.splitext(self.properties["path"])[1]

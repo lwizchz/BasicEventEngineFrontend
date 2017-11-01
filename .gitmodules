@@ -1,0 +1,3 @@
+[submodule "BasicEventEngine"]
+	path = BasicEventEngine
+	url = https://github.com/piluke/BasicEventEngine

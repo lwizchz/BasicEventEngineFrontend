@@ -28,6 +28,17 @@ class BEEFPath(BEEFBaseResource):
 			"is_closed": True
 		}
 
+	def getInit(self):
+		init = ""
+		if self.properties["coordinates"]:
+			for c in self.properties["coordinates"]:
+				init += "\n\t\t\t{name}->add_coordinate({x}, {y}, {z}, {speed});".format(name=self.name, x=c[0], y=c[1], z=c[2], speed=c[3])
+		if self.properties["is_curved"]:
+			init += "\n\t\t\t{name}->set_is_curved({curved});".format(name=self.name, curved=str(self.properties["is_curved"]).lower())
+		if not self.properties["is_closed"]:
+			init += "\n\t\t\t{name}->set_is_closed({closed});".format(name=self.name, closed=str(self.properties["is_closed"]).lower())
+		return init
+
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
 

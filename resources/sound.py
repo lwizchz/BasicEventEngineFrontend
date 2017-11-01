@@ -29,6 +29,14 @@ class BEEFSound(BEEFBaseResource):
 			"pan": 0
 		}
 
+	def getInit(self):
+		init = ""
+		if self.properties["volume"] != 100:
+			init += "\n\t\t\t{name}->set_volume({volume});".format(name=self.name, volume=self.properties["volume"]/100)
+		if self.properties["pan"] != 0:
+			init += "\n\t\t\t{name}->set_pan({pan});".format(name=self.name, pan=self.properties["pan"]/100)
+		return init
+
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
 
@@ -52,10 +60,13 @@ class BEEFSound(BEEFBaseResource):
 		playSizer.Add(bt_stop, 1, wx.ALL | wx.EXPAND, 0)
 		self.gbs.Add(playSizer, (4,1), (1,1))
 
-		path = self.properties["path"]
-		self.pageAddStatictext("Path: {}".format(path), (5,0), name="st_path")
+		self.pageAddStatictext("Pan:", (5,0))
+		self.pageAddSlider("sl_pan", self.properties["pan"], (6,0), minvalue=-100, maxvalue=100)
 
-		self.pageAddButton("bt_ok", "OK", (6,0))
+		path = self.properties["path"]
+		self.pageAddStatictext("Path: {}".format(path), (7,0), name="st_path")
+
+		self.pageAddButton("bt_ok", "OK", (8,0))
 
 		self.sizer = wx.BoxSizer()
 		self.sizer.Add(self.gbs, 1, wx.ALL | wx.EXPAND, 20)
@@ -128,8 +139,8 @@ class BEEFSound(BEEFBaseResource):
 			if tc_name.GetValue() != self.name:
 				self.rename(tc_name.GetValue())
 
-			sl_volume = self.inputs["sl_volume"]
-			self.properties["volume"] = sl_volume.GetValue()
+			self.properties["volume"] = self.inputs["sl_volume"].GetValue()
+			self.properties["pan"] = self.inputs["sl_pan"].GetValue()
 	def moveTo(self, name, newfile):
 		ext = os.path.splitext(self.properties["path"])[1]
 		os.rename(self.top.tmpDir+self.properties["path"], newfile+ext)

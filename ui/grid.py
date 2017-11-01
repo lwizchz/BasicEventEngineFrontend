@@ -91,8 +91,11 @@ class BEEFGrid(wx.Panel):
 				0, y,
 				self.w, y
 			))
-		dc.SetPen(wx.Pen(wx.BLACK, 1))
+		dc.SetPen(wx.Pen(wx.Colour(192, 192, 192), 1))
 		dc.DrawLineList(gridlines)
+
+		dc.SetPen(wx.Pen(wx.BLACK, 1))
+		dc.DrawLineList([(0, 0, 0, self.h), (0, 0, self.w, 0)])
 
 		# Draw the instances
 		for inst in self.instances:

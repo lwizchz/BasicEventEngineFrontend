@@ -15,9 +15,7 @@ Github. And above all, report bugs! :)
 
 ## How to use
 
-*Compilation support will be added in the near future*
-
-1. Install wxPython and watchdog:
+1. Install wxPython and optionally watchdog:
 
         sudo pip install wxpython watchdog
 
@@ -25,7 +23,7 @@ Github. And above all, report bugs! :)
 
         git submodule update --init --recursive
 
-3. Open BEEF and add resources as needed:
+3. Open BEEF and add resources as needed (or try out an example):
 
         ./beef.py
 

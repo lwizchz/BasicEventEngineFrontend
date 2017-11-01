@@ -14,6 +14,7 @@
 class {roomname}: public bee::Room {{
 	public:
 		{roomname}();
+		void init();
 		{events}
 }};
 

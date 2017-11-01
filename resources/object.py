@@ -74,6 +74,17 @@ class BEEFObject(BEEFBaseResource):
 			return ""
 
 		return ["void {event}({params}){const};".format(event=EEvent.get(event).lower().replace(" ", "_"), params=EEvent.getParamTypes(EEvent.get(event)), const=getConst(event)) for event, data in self.tmpEvents.items()]
+	def getInit(self):
+		init = ""
+		#if self.properties["is_solid"]:
+		#	init += "\n\t\t\t{name}->set_is_solid(true);".format(name=self.name)
+		if self.properties["is_persistent"]:
+			init += "\n\t\t\t{name}->set_is_persistent(true);".format(name=self.name)
+		if self.properties["sprite"]:
+			init += "\n\t\t\t{name}->set_sprite({sprite});".format(name=self.name, sprite=self.properties["sprite"])
+		#if self.properties["mask"]:
+		#	init += "\n\t\t\t{name}->set_mask({mask});".format(name=self.name, mask=self.properties["mask"])
+		return init
 
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)

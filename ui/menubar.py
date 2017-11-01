@@ -54,6 +54,11 @@ class BEEFMenuBar(wx.MenuBar):
 			"All files (*)|*"
 		)
 
+		self.Enable(106, False)
+		self.Enable(201, False)
+		self.Enable(202, False)
+		self.Enable(203, False)
+
 	def Bind(self):
 		self.parent.Bind(wx.EVT_MENU, self.MenuFileNew, id=101)
 		self.parent.Bind(wx.EVT_MENU, self.MenuFileOpen, id=102)
@@ -85,7 +90,7 @@ class BEEFMenuBar(wx.MenuBar):
 			defaultDir=os.getcwd(),
 			defaultFile="",
 			wildcard=self.wildcards,
-			style=wx.FD_OPEN | wx.FD_CHANGE_DIR
+			style=wx.FD_OPEN
 		)
 
 		if dialog.ShowModal() == wx.ID_OK:
@@ -107,7 +112,7 @@ class BEEFMenuBar(wx.MenuBar):
 			defaultDir=os.getcwd(),
 			defaultFile=fn,
 			wildcard=self.wildcards,
-			style=wx.FD_SAVE | wx.FD_CHANGE_DIR
+			style=wx.FD_SAVE
 		)
 
 		if dialog.ShowModal() == wx.ID_OK:
@@ -136,11 +141,11 @@ class BEEFMenuBar(wx.MenuBar):
 		pass
 
 	def MenuBuildRun(self, event):
-		self.parent.compiler.compile(ECompile.DEBUG)
-		self.parent.compiler.run()
+		if self.parent.compiler.compile(ECompile.DEBUG) == 0:
+			self.parent.compiler.run()
 	def MenuBuildDebug(self, event):
-		self.parent.compiler.compile(ECompile.DEBUG)
-		self.parent.compiler.debug()
+		if self.parent.compiler.compile(ECompile.DEBUG) == 0:
+			self.parent.compiler.debug()
 	def MenuBuildClean(self, event):
 		self.parent.compiler.clean()
 	def MenuBuildPackage(self, event):

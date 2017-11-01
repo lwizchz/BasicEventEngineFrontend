@@ -29,6 +29,20 @@ class BEEFLight(BEEFBaseResource):
 			"color": (255, 255, 255, 255)
 		}
 
+	def getInit(self):
+		init = ""
+		if self.properties["type"] != ELight.AMBIENT:
+			init += "\n\t\t\t{name}->set_type(bee::E_LIGHT::{type});".format(name=self.name, type=ELight.str(self.properties["type"]))
+		if self.properties["position"] != (0, 0, 0):
+			init += "\n\t\t\t{name}->set_position({{{x}, {y}, {z}, 0.0}});".format(name=self.name, x=self.properties["position"][0], y=self.properties["position"][1], z=self.properties["position"][2])
+		if self.properties["direction"] != (0, 0, 0):
+			init += "\n\t\t\t{name}->set_direction({{{x}, {y}, {z}, 0.0}});".format(name=self.name, x=self.properties["direction"][0], y=self.properties["direction"][1], z=self.properties["direction"][2])
+		if self.properties["attenuation"] != (0, 0, 0):
+			init += "\n\t\t\t{name}->set_attenuation({{{x}, {y}, {z}, 0.0}});".format(name=self.name, x=self.properties["attenuation"][0], y=self.properties["attenuation"][1], z=self.properties["attenuation"][2])
+		if self.properties["color"] != (255, 255, 255, 255):
+			init += "\n\t\t\t{name}->set_color({{{r}, {g}, {b}, {a}}});".format(name=self.name, r=self.properties["color"][0], g=self.properties["color"][1], b=self.properties["color"][2], a=self.properties["color"][3])
+		return init
+
 	def activateType(self, type):
 		enable = []
 		disable = []

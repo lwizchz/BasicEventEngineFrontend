@@ -4,11 +4,46 @@
 # BEE is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
+class EFontStyle:
+	NORMAL = 0
+	BOLD = 1
+	ITALIC = 2
+	UNDERLINE = 3
+	STRIKETHROUGH = 4
+	_MAX = 5
+
+	@staticmethod
+	def str(type):
+		if type == EFontStyle.NORMAL:
+			return "NORMAL"
+		elif type == EFontStyle.BOLD:
+			return "BOLD"
+		elif type == EFontStyle.ITALIC:
+			return "ITALIC"
+		elif type == EFontStyle.UNDERLINE:
+			return "UNDERLINE"
+		elif type == EFontStyle.STRIKETHROUGH:
+			return "STRIKETHROUGH"
+		return "NONE"
+
 class ELight:
 	AMBIENT = 1
 	DIFFUSE = 2
 	POINT = 3
 	SPOT = 4
+	_MAX = 5
+
+	@staticmethod
+	def str(type):
+		if type == ELight.AMBIENT:
+			return "AMBIENT"
+		elif type == ELight.DIFFUSE:
+			return "DIFFUSE"
+		elif type == ELight.POINT:
+			return "POINT"
+		elif type == ELight.SPOT:
+			return "SPOT"
+		return "NONE"
 
 class ECompile:
 	DEBUG = 0

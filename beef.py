@@ -16,7 +16,7 @@ import wx.adv
 try:
 	from watchdog.observers import Observer
 except ImportError:
-	raise ImportError("The watchdog module is required to run this program")
+	print("Failed to import watchdog, resources will not automatically update")
 
 import sys
 import os
@@ -38,7 +38,8 @@ from ui.toolbar import BEEFToolBar
 from ui.treectrl import BEEFTreeCtrl
 from ui.notebook import BEEFNotebook
 from ui.editdialog import BEEFEditDialog
-from ui.filehandler import BEEFFileHandler
+if "watchdog" in sys.modules:
+	from ui.filehandler import BEEFFileHandler
 
 from core.compiler import Compiler
 
@@ -141,9 +142,10 @@ class BEEFFrame(wx.Frame):
 		self.projectFilename = ""
 		self.setUnsaved(False)
 
-		self.fileHandler = BEEFFileHandler(self)
-		self.observer = Observer()
-		self.observer.schedule(self.fileHandler, self.tmpDir, recursive=True)
+		if "watchdog" in sys.modules:
+			self.fileHandler = BEEFFileHandler(self)
+			self.observer = Observer()
+			self.observer.schedule(self.fileHandler, self.tmpDir, recursive=True)
 
 		self.new()
 		if file:
@@ -151,7 +153,12 @@ class BEEFFrame(wx.Frame):
 		else:
 			self.SetStatusText("BEEF Loaded")
 
-		self.observer.start()
+		try:
+			if "watchdog" in sys.modules:
+				self.observer.start()
+		except OSError:
+			print("Failed to get observers for resources, they will not automatically update")
+
 		self.Show(True)
 	def Close(self):
 		self.quit(None)
@@ -159,8 +166,12 @@ class BEEFFrame(wx.Frame):
 		if not self.confirmClose():
 			return
 
-		self.observer.stop()
-		self.observer.join()
+		try:
+			if "watchdog" in sys.modules:
+				self.observer.stop()
+				self.observer.join()
+		except RuntimeError:
+			pass
 
 		try:
 			# "/cfg" and "/resources" will not be removed when the project is closed if the user closes the program with the window manager, e.g. Alt-F4
@@ -176,6 +187,8 @@ class BEEFFrame(wx.Frame):
 
 		self.Destroy()
 
+	def getDir(self):
+		return os.path.dirname(os.path.realpath(__file__))
 	def log(self, string):
 		print(string)
 
@@ -210,6 +223,8 @@ class BEEFFrame(wx.Frame):
 		self.projectFilename = filename
 
 		self.log("Loading \"" + self.projectFilename + "\"...")
+
+		self.compiler.clean()
 
 		with tarfile.open(self.projectFilename, "r:gz") as tar:
 			tar.extractall(self.tmpDir)

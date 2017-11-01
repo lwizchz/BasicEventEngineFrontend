@@ -30,6 +30,32 @@ class BEEFTimeline(BEEFBaseResource):
 		self.tmpActions = []
 		self.lastSelected = -1
 
+	def getInit(self):
+		def split(s, delim):
+			output = []
+			token_start = 0
+			for i in range(len(s)):
+				c = s[i]
+				if c == delim:
+					output.append(s[token_start:i])
+					token_start = i+1
+				elif c == "\"":
+					while ++i < len(s):
+						if s[i] == "\"":
+							break
+			if token_start < len(s):
+				output.append(s[token_start:])
+			return output
+
+		def indent(s, amount):
+			return ("\n" + "\t"*amount).join(split("\n"+s.strip(), "\n"))+"\n"
+
+		init = ""
+		if self.properties["actions"]:
+			for a in self.properties["actions"]:
+				init += "\n\t\t\t{name}->add_action({time}, \"{action_name}\", [] () {{{code}\t\t\t}});".format(name=self.name, time=a[0], action_name=a[1], code=indent(a[2], 4))
+		return init
+
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
 

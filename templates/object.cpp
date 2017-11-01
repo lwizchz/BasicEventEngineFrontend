@@ -11,6 +11,11 @@
 #ifndef RES_{capname}
 #define RES_{capname} 1
 
+#include "../../bee/util.hpp"
+#include "../../bee/all.hpp"
+
+#include "../resources.hpp"
+
 #include "{name}.hpp"
 
 {objname}::{objname}() : Object("{name}", "{name}.hpp") {{

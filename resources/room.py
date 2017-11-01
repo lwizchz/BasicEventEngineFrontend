@@ -40,7 +40,7 @@ class BEEFRoom(BEEFBaseResource):
 	def getEventHeaders(self):
 		return []
 	def getInstanceMap(self):
-		return ["{} {} {} {}".format(*inst) for inst in self.properties["instances"]]
+		return ["{}\t{}\t{}\t{}".format(*inst) for inst in self.properties["instances"]]
 
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
@@ -64,10 +64,10 @@ class BEEFRoom(BEEFBaseResource):
 		tc_height = self.pageMakeTextctrl("tc_height", str(self.properties["height"]))
 		settingsSizer.AddMany([(cb_is_persistent), (st_width), (tc_width), (st_height), (tc_height)])
 		self.gbs.Add(settingsSizer, (3,0), (1,2))
-		
+
 		backgroundSizer = wx.StaticBoxSizer(wx.VERTICAL, self.page, "Backgrounds")
 		self.gbs.Add(backgroundSizer, (4,0), (1,2))
-		
+
 		viewSizer = wx.StaticBoxSizer(wx.VERTICAL, self.page, "Views")
 		self.gbs.Add(viewSizer, (5,0), (1,2))
 
@@ -92,7 +92,7 @@ class BEEFRoom(BEEFBaseResource):
 		tc = event.GetEventObject()
 		if tc == self.inputs["tc_width"] or tc == self.inputs["tc_height"]:
 			gr.SetDimensions(self.inputs["tc_width"].GetValue(), self.inputs["tc_height"].GetValue())
-		
+
 		return True
 	def onCheckBoxSpecific(self, event):
 		return True
@@ -106,7 +106,7 @@ class BEEFRoom(BEEFBaseResource):
 		ch = event.GetEventObject()
 		if ch == self.inputs["ch_instance"]:
 			self.inputs["gr_instances"].SetObject(ch.GetString(cg.GetSelection()))
-		
+
 		return False
 
 	def update(self):
@@ -117,12 +117,12 @@ class BEEFRoom(BEEFBaseResource):
 			tc_name = self.inputs["tc_name"]
 			if tc_name.GetValue() != self.name:
 				self.rename(tc_name.GetValue())
-			
+
 			self.properties["is_persistent"] = self.inputs["cb_is_persistent"].GetValue()
-			
+
 			self.properties["width"] = int(self.inputs["tc_width"].GetValue())
 			self.properties["height"] = int(self.inputs["tc_height"].GetValue())
-			
+
 			self.properties["instances"] = [inst for inst in self.inputs["gr_instances"].instances]
 	def moveTo(self, name, newfile):
 		"""if self.properties["path"]:
