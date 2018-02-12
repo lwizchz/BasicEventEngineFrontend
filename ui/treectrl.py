@@ -1,7 +1,7 @@
-# Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+# Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 #
-# This file is part of BEE.
-# BEE is free software and comes with ABSOLUTELY NO WARANTY.
+# This file is part of BEEF.
+# BEEF is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
 try:
@@ -49,49 +49,45 @@ class BEEFTreeCtrl(wx.TreeCtrl):
 		self.parent.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.ShowCMenu, self)
 
 		# Bind context menu actions
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootSpriteCreate, id=1001)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootSpriteExpand, id=1002)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootSpriteCollapse, id=1003)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTextureCreate, id=1001)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTextureExpand, id=1002)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTextureCollapse, id=1003)
 
 		self.parent.Bind(wx.EVT_MENU, self.CMenuRootSoundCreate, id=1011)
 		self.parent.Bind(wx.EVT_MENU, self.CMenuRootSoundExpand, id=1012)
 		self.parent.Bind(wx.EVT_MENU, self.CMenuRootSoundCollapse, id=1013)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootBackgroundCreate, id=1021)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootBackgroundExpand, id=1022)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootBackgroundCollapse, id=1023)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootFontCreate, id=1021)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootFontExpand, id=1022)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootFontCollapse, id=1023)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootFontCreate, id=1031)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootFontExpand, id=1032)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootFontCollapse, id=1033)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootPathCreate, id=1031)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootPathExpand, id=1032)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootPathCollapse, id=1033)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootPathCreate, id=1041)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootPathExpand, id=1042)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootPathCollapse, id=1043)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTimelineCreate, id=1041)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTimelineExpand, id=1042)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTimelineCollapse, id=1043)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTimelineCreate, id=1051)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTimelineExpand, id=1052)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootTimelineCollapse, id=1053)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootMeshCreate, id=1051)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootMeshExpand, id=1052)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootMeshCollapse, id=1053)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootMeshCreate, id=1061)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootMeshExpand, id=1062)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootMeshCollapse, id=1063)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootLightCreate, id=1061)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootLightExpand, id=1062)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootLightCollapse, id=1063)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootLightCreate, id=1071)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootLightExpand, id=1072)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootLightCollapse, id=1073)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootObjectCreate, id=1071)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootObjectExpand, id=1072)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootObjectCollapse, id=1073)
 
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootObjectCreate, id=1081)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootObjectExpand, id=1082)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootObjectCollapse, id=1083)
-
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootRoomCreate, id=1091)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootRoomExpand, id=1092)
-		self.parent.Bind(wx.EVT_MENU, self.CMenuRootRoomCollapse, id=1093)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootRoomCreate, id=1081)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootRoomExpand, id=1082)
+		self.parent.Bind(wx.EVT_MENU, self.CMenuRootRoomCollapse, id=1083)
 
 		# Bind resource context menu actions
 		self.top.Bind(wx.EVT_MENU, self.CMenuResourceOpen, id=10001)
-		self.top.Bind(wx.EVT_MENU, self.CMenuRootSpriteCreate, id=10002)
+		self.top.Bind(wx.EVT_MENU, self.CMenuRootTextureCreate, id=10002)
 		self.top.Bind(wx.EVT_MENU, self.CMenuResourceRename, id=10003)
 		self.top.Bind(wx.EVT_MENU, self.CMenuResourceDelete, id=10004)
 		self.top.Bind(wx.EVT_MENU, self.CMenuResourceDuplicate, id=10005)
@@ -162,7 +158,7 @@ class BEEFTreeCtrl(wx.TreeCtrl):
 		self.PopupMenu(self.cmenu)
 		self.cmenu.Destroy()
 
-	def addSprite(self, name, resource):
+	def addTexture(self, name, resource):
 		item = self.AppendItem(self.rootList[0], name)
 		self.SetItemData(item, resource)
 
@@ -176,73 +172,66 @@ class BEEFTreeCtrl(wx.TreeCtrl):
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addBackground(self, name, resource):
+	def addFont(self, name, resource):
 		item = self.AppendItem(self.rootList[2], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addFont(self, name, resource):
+	def addPath(self, name, resource):
 		item = self.AppendItem(self.rootList[3], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addPath(self, name, resource):
+	def addTimeline(self, name, resource):
 		item = self.AppendItem(self.rootList[4], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addTimeline(self, name, resource):
+	def addMesh(self, name, resource):
 		item = self.AppendItem(self.rootList[5], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addMesh(self, name, resource):
+	def addLight(self, name, resource):
 		item = self.AppendItem(self.rootList[6], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addLight(self, name, resource):
+	def addObject(self, name, resource):
 		item = self.AppendItem(self.rootList[7], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addObject(self, name, resource):
+	def addRoom(self, name, resource):
 		item = self.AppendItem(self.rootList[8], name)
 		self.SetItemData(item, resource)
 
 		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
 
 		return item
-	def addRoom(self, name, resource):
-		item = self.AppendItem(self.rootList[9], name)
-		self.SetItemData(item, resource)
 
-		self.SetItemImage(item, self.iconFile, wx.TreeItemIcon_Normal)
-
-		return item
-
-	def CMenuRootSpriteCreate(self, event):
-		name = "spr_" + str(len(self.top.sprites))
-		_, item = self.top.addSprite(name)
+	def CMenuRootTextureCreate(self, event):
+		name = "spr_" + str(len(self.top.textures))
+		_, item = self.top.addTexture(name)
 
 		if item:
-			self.CMenuRootSpriteExpand(None)
+			self.CMenuRootTextureExpand(None)
 			self.SelectItem(item)
-	def CMenuRootSpriteExpand(self, event):
+	def CMenuRootTextureExpand(self, event):
 		self.Expand(self.rootList[0])
-	def CMenuRootSpriteCollapse(self, event):
+	def CMenuRootTextureCollapse(self, event):
 		self.Collapse(self.rootList[0])
 
 	def CMenuRootSoundCreate(self, event):
@@ -256,18 +245,6 @@ class BEEFTreeCtrl(wx.TreeCtrl):
 		self.Expand(self.rootList[1])
 	def CMenuRootSoundCollapse(self, event):
 		self.Collapse(self.rootList[1])
-
-	def CMenuRootBackgroundCreate(self, event):
-		name = "bk_" + str(len(self.top.backgrounds))
-		_, item = self.top.addBackground(name)
-
-		if item:
-			self.CMenuRootBackgroundExpand(None)
-			self.SelectItem(item)
-	def CMenuRootBackgroundExpand(self, event):
-		self.Expand(self.rootList[2])
-	def CMenuRootBackgroundCollapse(self, event):
-		self.Collapse(self.rootList[2])
 
 	def CMenuRootFontCreate(self, event):
 		name = "font_" + str(len(self.top.fonts))

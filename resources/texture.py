@@ -1,7 +1,7 @@
-# Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+# Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 #
-# This file is part of BEE.
-# BEE is free software and comes with ABSOLUTELY NO WARANTY.
+# This file is part of BEEF.
+# BEEF is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
 try:
@@ -15,10 +15,10 @@ import shutil
 
 from resources.base import BEEFBaseResource
 
-class BEEFSprite(BEEFBaseResource):
+class BEEFTexture(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
-		self.path = "/resources/sprites/"
+		self.path = "/resources/textures/"
 		self.type = 0
 		self.properties = {
 			"path": "",
@@ -32,8 +32,8 @@ class BEEFSprite(BEEFBaseResource):
 		init = ""
 		if self.properties["subimage_amount"] > 1:
 			init += "\n\t\t\t{name}->set_subimage_amount({si_amount}, {si_width});".format(name=self.name, si_amount=self.properties["subimage_amount"], si_width=self.properties["width"]//self.properties["subimage_amount"])
-			if self.properties["speed"] != 1.0:
-				init += "\n\t\t\t{name}->set_speed({speed});".format(name=self.name, speed=self.properties["speed"])
+			#if self.properties["speed"] != 1.0:
+			init += "\n\t\t\t{name}->set_speed({speed});".format(name=self.name, speed=self.properties["speed"])
 		init += "\n\t\t\t{name}->load();".format(name=self.name)
 		return init
 
@@ -56,7 +56,7 @@ class BEEFSprite(BEEFBaseResource):
 
 		w = self.properties["width"] // self.properties["subimage_amount"]
 		h = self.properties["height"]
-		self.pageAddBitmap("bmp_sprite", imgpath, (5,0), imgsize=self.getBmpSize((w, h), (128,128)))
+		self.pageAddBitmap("bmp_texture", imgpath, (5,0), imgsize=self.getBmpSize((w, h), (128,128)))
 		self.cropBmp(self.properties["subimage_amount"])
 
 		self.pageAddStatictext("Dimensions: {}px by {}px".format(w, h), (6,0), name="st_dimensions")
@@ -87,7 +87,7 @@ class BEEFSprite(BEEFBaseResource):
 
 		path = self.top.tmpDir + self.properties["path"]
 		if os.path.isfile(path):
-			self.inputs["bmp_sprite"].SetBitmap(wx.Bitmap(wx.Image(path)).GetSubBitmap(wx.Rect(
+			self.inputs["bmp_texture"].SetBitmap(wx.Bitmap(wx.Image(path)).GetSubBitmap(wx.Rect(
 				0, 0,
 				w, h
 			)))
@@ -117,7 +117,7 @@ class BEEFSprite(BEEFBaseResource):
 				f = ""
 
 			dialog = wx.FileDialog(
-				self.top, message="Import Sprite",
+				self.top, message="Import Texture",
 				defaultDir=d,
 				defaultFile=f,
 				wildcard=wildcards,
@@ -127,10 +127,6 @@ class BEEFSprite(BEEFBaseResource):
 			if dialog.ShowModal() == wx.ID_OK:
 				path = dialog.GetPath()
 				ext = os.path.splitext(path)[1]
-
-				if self.properties["path"] == self.path+self.name+ext:
-					dialog.Destroy()
-					return False
 
 				self.properties["path"] = self.path+self.name+ext
 				shutil.copyfile(path, self.top.tmpDir+self.properties["path"])
@@ -154,7 +150,7 @@ class BEEFSprite(BEEFBaseResource):
 		self.properties["height"] = h
 
 		img.Rescale(*self.getBmpSize((w, h), (128,128)))
-		self.inputs["bmp_sprite"].SetBitmap(wx.BitmapFromImage(img))
+		self.inputs["bmp_texture"].SetBitmap(wx.Bitmap(img))
 
 		self.inputs["st_dimensions"].SetLabel("Dimensions: {}px by {}px".format(w, h))
 
@@ -174,6 +170,6 @@ class BEEFSprite(BEEFBaseResource):
 			self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
 
 	def MenuDuplicate(self, event):
-		r = BEEFSprite(self.top, None)
+		r = BEEFTexture(self.top, None)
 		r.properties = copy.deepcopy(self.properties)
-		self.top.addSprite(self.name, r)
+		self.top.addTexture(self.name, r)

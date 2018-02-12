@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+# Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 #
 # This file is part of BEEF.
 # BEEF is free software and comes with ABSOLUTELY NO WARANTY.
@@ -44,9 +44,8 @@ if "watchdog" in sys.modules:
 from core.compiler import Compiler
 
 from resources.base import BEEFBaseResource
-from resources.sprite import BEEFSprite
+from resources.texture import BEEFTexture
 from resources.sound import BEEFSound
-from resources.background import BEEFBackground
 from resources.font import BEEFFont
 from resources.path import BEEFPath
 from resources.timeline import BEEFTimeline
@@ -68,9 +67,8 @@ class BEEFFrame(wx.Frame):
 		self.gameCfg = {}
 
 		self.resourceTypes = [
-			["Sprite", "Sprites"],
+			["Texture", "Textures"],
 			["Sound", "Sounds"],
-			["Background", "Backgrounds"],
 			["Font", "Fonts"],
 			["Path", "Paths"],
 			["Timeline", "Timelines"],
@@ -80,9 +78,8 @@ class BEEFFrame(wx.Frame):
 			["Room", "Rooms"]
 		]
 
-		self.sprites = []
+		self.textures = []
 		self.sounds = []
-		self.backgrounds = []
 		self.fonts = []
 		self.paths = []
 		self.timelines = []
@@ -239,9 +236,9 @@ class BEEFFrame(wx.Frame):
 		self.treectrl.expandRoot()
 
 		resources = itertools.chain(
-			self.sprites, self.sounds, self.backgrounds,
-			self.fonts, self.paths, self.timelines,
-			self.meshes, self.lights, self.objects, self.rooms
+			self.textures, self.sounds, self.fonts,
+			self.paths, self.timelines, self.meshes,
+			self.lights, self.objects, self.rooms
 		)
 		orl = self.gameCfg["open_resources"]
 		self.gameCfg["open_resources"] = []
@@ -264,21 +261,16 @@ class BEEFFrame(wx.Frame):
 		with open(self.tmpDir+"/config.json", "r") as f:
 			self.gameCfg = json.loads(f.read())
 		self.gameCfg["resource_edit_programs"] = {int(k):v for k,v in self.gameCfg["resource_edit_programs"].items()} # Convert int keys from JSON strings
-		for fn in glob.glob(self.tmpDir+"/resources/sprites/*.json"):
+		for fn in glob.glob(self.tmpDir+"/resources/textures/*.json"):
 			with open(fn, "r") as f:
-				r = BEEFSprite(self, None)
+				r = BEEFTexture(self, None)
 				r.deserialize(f.read())
-				self.addSprite(r.name, r)
+				self.addTexture(r.name, r)
 		for fn in glob.glob(self.tmpDir+"/resources/sounds/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFSound(self, None)
 				r.deserialize(f.read())
 				self.addSound(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/backgrounds/*.json"):
-			with open(fn, "r") as f:
-				r = BEEFBackground(self, None)
-				r.deserialize(f.read())
-				self.addBackground(r.name, r)
 		for fn in glob.glob(self.tmpDir+"/resources/fonts/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFFont(self, None)
@@ -341,9 +333,9 @@ class BEEFFrame(wx.Frame):
 		self.log("Saving \"" + self.projectFilename + "\"...")
 
 		resources = itertools.chain(
-			self.sprites, self.sounds, self.backgrounds,
-			self.fonts, self.paths, self.timelines,
-			self.meshes, self.lights, self.objects, self.rooms
+			self.textures, self.sounds, self.fonts,
+			self.paths, self.timelines, self.meshes,
+			self.lights, self.objects, self.rooms
 		)
 		for r in resources:
 			if r:
@@ -372,17 +364,13 @@ class BEEFFrame(wx.Frame):
 		with open(self.tmpDir+"/config.json", "w") as f:
 			f.write(json.dumps(self.gameCfg, indent=4))
 
-		for r in self.sprites:
+		for r in self.textures:
 			if r:
-				with open(self.tmpDir+"/resources/sprites/" + r.name + ".json", "w") as f:
+				with open(self.tmpDir+"/resources/textures/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.sounds:
 			if r:
 				with open(self.tmpDir+"/resources/sounds/" + r.name + ".json", "w") as f:
-					f.write(r.serialize())
-		for r in self.backgrounds:
-			if r:
-				with open(self.tmpDir+"/resources/backgrounds/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.fonts:
 			if r:
@@ -465,18 +453,17 @@ class BEEFFrame(wx.Frame):
 		self.projectFilename = ""
 
 		resources = itertools.chain(
-			self.sprites, self.sounds, self.backgrounds,
-			self.fonts, self.paths, self.timelines,
-			self.meshes, self.lights, self.objects, self.rooms
+			self.textures, self.sounds, self.fonts,
+			self.paths, self.timelines, self.meshes,
+			self.lights, self.objects, self.rooms
 		)
 		for r in resources:
 			if r:
 				r.destroyPage(isClosing=True)
 		self.notebook.DeleteAllPages()
 
-		self.sprites = []
+		self.textures = []
 		self.sounds = []
-		self.backgrounds = []
 		self.fonts = []
 		self.paths = []
 		self.timelines = []
@@ -525,9 +512,8 @@ class BEEFFrame(wx.Frame):
 
 	def getNextGid(self):
 		return (
-			len(self.sprites) +
+			len(self.textures) +
 			len(self.sounds) +
-			len(self.backgrounds) +
 			len(self.fonts) +
 			len(self.paths) +
 			len(self.timelines) +
@@ -536,14 +522,14 @@ class BEEFFrame(wx.Frame):
 			len(self.objects) +
 			len(self.rooms)
 		)
-	def addSprite(self, name, resource=None):
+	def addTexture(self, name, resource=None):
 		r = resource
 		if not r:
-			r = BEEFSprite(self, name)
+			r = BEEFTexture(self, name)
 
-		r.id = len(self.sprites)
+		r.id = len(self.textures)
 		r.gid = self.getNextGid()
-		r.resourceList = self.sprites
+		r.resourceList = self.textures
 
 		while not r.checkName(name, shouldDelete=False):
 			name = self.dialogRename(name)
@@ -554,8 +540,8 @@ class BEEFFrame(wx.Frame):
 		self.setUnsaved()
 		r.name = name
 
-		self.sprites.append(r)
-		i = self.treectrl.addSprite(name, r)
+		self.textures.append(r)
+		i = self.treectrl.addTexture(name, r)
 		r.treeitem = i
 
 		return (r, i)
@@ -579,29 +565,6 @@ class BEEFFrame(wx.Frame):
 
 		self.sounds.append(r)
 		i = self.treectrl.addSound(name, r)
-		r.treeitem = i
-
-		return (r, i)
-	def addBackground(self, name, resource=None):
-		r = resource
-		if not r:
-			r = BEEFBackground(self, name)
-
-		r.id = len(self.backgrounds)
-		r.gid = self.getNextGid()
-		r.resourceList = self.backgrounds
-
-		while not r.checkName(name, shouldDelete=False):
-			name = self.dialogRename(name)
-
-			if not name:
-				return (None, None)
-
-		self.setUnsaved()
-		r.name = name
-
-		self.backgrounds.append(r)
-		i = self.treectrl.addBackground(name, r)
 		r.treeitem = i
 
 		return (r, i)
@@ -772,9 +735,9 @@ class BEEFFrame(wx.Frame):
 			return
 
 		resources = itertools.chain(
-			self.sprites, self.sounds, self.backgrounds,
-			self.fonts, self.paths, self.timelines,
-			self.meshes, self.lights, self.objects, self.rooms
+			self.textures, self.sounds, self.fonts,
+			self.paths, self.timelines, self.meshes,
+			self.lights, self.objects, self.rooms
 		)
 		for r in resources:
 			if r.pageIndex > index:
@@ -782,9 +745,8 @@ class BEEFFrame(wx.Frame):
 
 	def getResourceFromPath(self, path):
 		roots = [
-			"/resources/sprites/",
+			"/resources/textures/",
 			"/resources/sounds/",
-			"/resources/backgrounds/",
 			"/resources/fonts/",
 			"/resources/paths/",
 			"/resources/timelines/",
@@ -794,9 +756,8 @@ class BEEFFrame(wx.Frame):
 			"/resources/rooms/"
 		]
 		rlists = [
-			self.sprites,
+			self.textures,
 			self.sounds,
-			self.backgrounds,
 			self.fonts,
 			self.paths,
 			self.timelines,

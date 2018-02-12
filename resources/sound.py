@@ -1,7 +1,7 @@
-# Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+# Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 #
-# This file is part of BEE.
-# BEE is free software and comes with ABSOLUTELY NO WARANTY.
+# This file is part of BEEF.
+# BEEF is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
 try:
@@ -35,6 +35,7 @@ class BEEFSound(BEEFBaseResource):
 			init += "\n\t\t\t{name}->set_volume({volume});".format(name=self.name, volume=self.properties["volume"]/100)
 		if self.properties["pan"] != 0:
 			init += "\n\t\t\t{name}->set_pan({pan});".format(name=self.name, pan=self.properties["pan"]/100)
+		init += "\n\t\t\t{name}->load();".format(name=self.name)
 		return init
 
 	def initPageSpecific(self):

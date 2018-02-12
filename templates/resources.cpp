@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015-17 Luke Montalvo <lukemontalvo@gmail.com>
+* Copyright (c) 2015-18 Luke Montalvo <lukemontalvo@gmail.com>
 *
 * This file is part of BEE.
 * BEE is free software and comes with ABSOLUTELY NO WARANTY.
@@ -13,16 +13,13 @@
 
 // BEEF auto-generated the below code and will overwrite all changes
 
-// Define sprites
-bee::Sprite* spr_none = nullptr;
+// Define textures
+bee::Texture* spr_none = nullptr;
 
-{spriteDefines}
+{textureDefines}
 
 // Define sounds
 {soundDefines}
-
-// Define backgrounds
-{backgroundDefines}
 
 // Define fonts
 {fontDefines}
@@ -57,17 +54,14 @@ bee::Sprite* spr_none = nullptr;
 */
 int bee::init_resources() {{
 	try {{ // Catch any exceptions so that the engine can properly clean up
-		// Init sprites
-		spr_none = new Sprite("spr_none", "none.png");
+		// Init textures
+		spr_none = new Texture("spr_none", "none.png");
 			spr_none->load();
-			
-		{spriteInits}
+
+		{textureInits}
 
 		// Init sounds
 		{soundInits}
-
-		// Init backgrounds
-		{backgroundInits}
 
 		// Init fonts
 		{fontInits}
@@ -103,14 +97,11 @@ int bee::init_resources() {{
 * bee::close_resources() - Destroy all game resources
 */
 int bee::close_resources() {{
-	// Destroy sprites
-	{spriteDeletes}
+	// Destroy textures
+	{textureDeletes}
 
 	// Destroy sounds
 	{soundDeletes}
-
-	// Destroy backgrounds
-	{backgroundDeletes}
 
 	// Destroy fonts
 	{fontDeletes}

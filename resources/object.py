@@ -1,7 +1,7 @@
-# Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+# Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 #
-# This file is part of BEE.
-# BEE is free software and comes with ABSOLUTELY NO WARANTY.
+# This file is part of BEEF.
+# BEEF is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
 try:
@@ -94,7 +94,7 @@ class BEEFObject(BEEFBaseResource):
 		self.pageAddTextctrl("tc_name", self.name, (1,0), (1,2))
 
 		self.pageAddStatictext("Sprite:", (2,0))
-		spriteList = [""] + [s.name for s in self.top.sprites]
+		spriteList = [""] + [s.name for s in self.top.textures]
 		spriteIndex = -1
 		try:
 			spriteIndex = spriteList.index(self.properties["sprite"])

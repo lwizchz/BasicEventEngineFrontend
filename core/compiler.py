@@ -1,7 +1,7 @@
-# Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+# Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 #
-# This file is part of BEE.
-# BEE is free software and comes with ABSOLUTELY NO WARANTY.
+# This file is part of BEEF.
+# BEEF is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
 import os
@@ -176,9 +176,8 @@ class Compiler:
 		with open("templates/resources.hpp", "r") as resourcesHeaderTemplate:
 			resourcesHeader = resourcesHeaderTemplate.read()
 		resourcesHeader = resourcesHeader.format(
-			spriteDefines="\n".join(["extern bee::Sprite* {};".format(s.name) for s in self.top.sprites]),
+			textureDefines="\n".join(["extern bee::Texture* {};".format(s.name) for s in self.top.textures]),
 			soundDefines="\n".join(["extern bee::Sound* {};".format(s.name) for s in self.top.sounds]),
-			backgroundDefines="\n".join(["extern bee::Background* {};".format(b.name) for b in self.top.backgrounds]),
 			fontDefines="\n".join(["extern bee::Font* {};".format(f.name) for f in self.top.fonts]),
 			pathDefines="\n".join(["extern bee::Path* {};".format(p.name) for p in self.top.paths]),
 			timelineDefines="\n".join(["extern bee::Timeline* {};".format(t.name) for t in self.top.timelines]),
@@ -194,9 +193,8 @@ class Compiler:
 		with open("templates/resources.cpp", "r") as resourcesTemplate:
 			resources = resourcesTemplate.read()
 		resources = resources.format(
-			spriteDefines="\n".join(["bee::Sprite* {} = nullptr;".format(s.name) for s in self.top.sprites]),
+			textureDefines="\n".join(["bee::Texture* {} = nullptr;".format(s.name) for s in self.top.textures]),
 			soundDefines="\n".join(["bee::Sound* {} = nullptr;".format(s.name) for s in self.top.sounds]),
-			backgroundDefines="\n".join(["bee::Background* {} = nullptr;".format(b.name) for b in self.top.backgrounds]),
 			fontDefines="\n".join(["bee::Font* {} = nullptr;".format(f.name) for f in self.top.fonts]),
 			pathDefines="\n".join(["bee::Path* {} = nullptr;".format(p.name) for p in self.top.paths]),
 			timelineDefines="\n".join(["bee::Timeline* {} = nullptr;".format(t.name) for t in self.top.timelines]),
@@ -208,9 +206,8 @@ class Compiler:
 			objectIncludes="\n".join(["#include \"objects/{}.hpp\"".format(o.name) for o in self.top.objects]),
 			roomIncludes="\n".join(["#include \"rooms/{}.hpp\"".format(r.name) for r in self.top.rooms]),
 
-			spriteInits="\n\t\t".join(["{name} = new Sprite(\"{name}\", \"{path}\");{extra}".format(name=s.name, path=s.name+".png", extra=s.getInit()) for s in self.top.sprites]),
+			textureInits="\n\t\t".join(["{name} = new Texture(\"{name}\", \"{path}\");{extra}".format(name=s.name, path=s.name+".png", extra=s.getInit()) for s in self.top.textures]),
 			soundInits="\n\t\t".join(["{name} = new Sound(\"{name}\", \"{path}\", false);{extra}".format(name=s.name, path=s.name+".wav", extra=s.getInit()) for s in self.top.sounds]),
-			backgroundInits="\n\t\t".join(["{name} = new Background(\"{name}\", \"{path}\");{extra}".format(name=b.name, path=b.name+".png", extra=b.getInit()) for b in self.top.backgrounds]),
 			fontInits="\n\t\t".join(["{name} = new Font(\"{name}\", \"{path}\", {size}, false);{extra}".format(name=f.name, path=f.name+".ttf", size=f.properties["size"], extra=f.getInit()) for f in self.top.fonts]),
 			pathInits="\n\t\t".join(["{name} = new Path(\"{name}\", \"\");{extra}".format(name=p.name, extra=p.getInit()) for p in self.top.paths]),
 			timelineInits="\n\t\t".join(["{name} = new Timeline(\"{name}\", \"\");{extra}".format(name=t.name, extra=t.getInit()) for t in self.top.timelines]),
@@ -219,9 +216,8 @@ class Compiler:
 			objectInits="\n\t\t".join(["{name} = new {objname}();{extra}".format(name=o.name, objname=o.name.replace("_", " ").title().replace(" ", ""), extra=o.getInit()) for o in self.top.objects]),
 			roomInits="\n\t\t".join(["{name} = new {roomname}();{extra}".format(name=r.name, roomname=r.name.replace("_", " ").title().replace(" ", ""), extra=r.getInit()) for r in self.top.rooms]),
 
-			spriteDeletes="\n\t".join(["DEL({});".format(s.name) for s in self.top.sprites]),
+			textureDeletes="\n\t".join(["DEL({});".format(s.name) for s in self.top.textures]),
 			soundDeletes="\n\t".join(["DEL({});".format(s.name) for s in self.top.sounds]),
-			backgroundDeletes="\n\t".join(["DEL({});".format(b.name) for b in self.top.backgrounds]),
 			fontDeletes="\n\t".join(["DEL({});".format(f.name) for f in self.top.fonts]),
 			pathDeletes="\n\t".join(["DEL({});".format(p.name) for p in self.top.paths]),
 			timelineDeletes="\n\t".join(["DEL({});".format(t.name) for t in self.top.timelines]),

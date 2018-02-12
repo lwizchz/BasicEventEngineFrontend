@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015-17 Luke Montalvo <lukemontalvo@gmail.com>
+* Copyright (c) 2015-18 Luke Montalvo <lukemontalvo@gmail.com>
 *
 * This file is part of BEE.
 * BEE is free software and comes with ABSOLUTELY NO WARANTY.
@@ -18,16 +18,16 @@
 
 #include "{name}.hpp"
 
-{roomname}::{roomname}() : Room("{roomname}", "{name}.hpp") {{}}
+{roomname}::{roomname}() : Room("{roomname}", "{name}.cpp") {{}}
 void {roomname}::init() {{
 	Room::init();
-	
+
 	set_width({width});
 	set_height({height});
-	
+
 	get_phys_world()->set_gravity(btVector3(0.0, {gravity}, 0.0));
 	get_phys_world()->set_scale(100.0);
-	
+
 	if (get_instance_map().empty()) {{
 		set_instance_map("resources/rooms/{name}.csv");
 	}}
@@ -35,4 +35,4 @@ void {roomname}::init() {{
 }}
 {events}
 
-#endif // RES_{capname}_H
+#endif // RES_{capname}

@@ -1,4 +1,4 @@
-Copyright (c) 2017 Luke Montalvo <lukemontalvo@gmail.com>
+Copyright (c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>
 
 BEEFrontend is the graphical editor for the
 [BasicEventEngine](https://github.com/piluke/BasicEventEngine/), an
