@@ -1,0 +1,9 @@
+{
+    "id": 0,
+    "name": "snd_chirp",
+    "properties": {
+        "volume": 70,
+        "path": "/resources/sounds/snd_chirp.wav",
+        "pan": 0
+    }
+}

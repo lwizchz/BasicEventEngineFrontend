@@ -73,7 +73,7 @@ class Compiler:
 		return 0
 	def run(self):
 		print("Running {}...".format(self.top.gameCfg["game_name"]))
-		copytree("{}/resources".format(self.top.tmpDir), "{}/resources".format(self.srcDir))
+		copytree("{}/resources".format(self.top.rootDir), "{}/resources".format(self.srcDir))
 		subprocess.Popen(["./build/{}".format(self.top.gameCfg["game_name"]), "--no-assert"], cwd="{}".format(self.srcDir))
 	def debug(self):
 		print("Debugging {}...".format(self.top.gameCfg["game_name"]))

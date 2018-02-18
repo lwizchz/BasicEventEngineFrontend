@@ -110,7 +110,7 @@ class BEEFFont(BEEFBaseResource):
 				"All files (*)|*"
 			)
 
-			d = self.top.tmpDir+os.path.dirname(self.properties["path"])
+			d = self.top.rootDir+os.path.dirname(self.properties["path"])
 			f = os.path.basename(self.properties["path"])
 			if not self.properties["path"]:
 				d = os.getcwd()
@@ -133,7 +133,7 @@ class BEEFFont(BEEFBaseResource):
 					return False
 
 				self.properties["path"] = self.path+self.name+ext
-				shutil.copyfile(path, self.top.tmpDir+self.properties["path"])
+				shutil.copyfile(path, self.top.rootDir+self.properties["path"])
 
 				self.update()
 			else:
@@ -175,7 +175,7 @@ class BEEFFont(BEEFBaseResource):
 	def moveTo(self, name, newfile):
 		if self.properties["path"]:
 			ext = os.path.splitext(self.properties["path"])[1]
-			os.rename(self.top.tmpDir+self.properties["path"], newfile+ext)
+			os.rename(self.top.rootDir+self.properties["path"], newfile+ext)
 			self.properties["path"] = self.path+name+ext
 			self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
 

@@ -52,7 +52,7 @@ class BEEFTexture(BEEFBaseResource):
 		self.pageAddTextctrl("tc_speed", str(self.properties["speed"]), (4,1))
 
 		path = self.properties["path"]
-		imgpath = self.top.tmpDir+path
+		imgpath = self.top.rootDir+path
 
 		w = self.properties["width"] // self.properties["subimage_amount"]
 		h = self.properties["height"]
@@ -85,7 +85,7 @@ class BEEFTexture(BEEFBaseResource):
 		w = self.properties["width"] // subimage_amount
 		h = self.properties["height"]
 
-		path = self.top.tmpDir + self.properties["path"]
+		path = self.top.rootDir + self.properties["path"]
 		if os.path.isfile(path):
 			self.inputs["bmp_texture"].SetBitmap(wx.Bitmap(wx.Image(path)).GetSubBitmap(wx.Rect(
 				0, 0,
@@ -110,7 +110,7 @@ class BEEFTexture(BEEFBaseResource):
 				"All files (*)|*"
 			)
 
-			d = self.top.tmpDir+os.path.dirname(self.properties["path"])
+			d = self.top.rootDir+os.path.dirname(self.properties["path"])
 			f = os.path.basename(self.properties["path"])
 			if not self.properties["path"]:
 				d = os.getcwd()
@@ -129,7 +129,7 @@ class BEEFTexture(BEEFBaseResource):
 				ext = os.path.splitext(path)[1]
 
 				self.properties["path"] = self.path+self.name+ext
-				shutil.copyfile(path, self.top.tmpDir+self.properties["path"])
+				shutil.copyfile(path, self.top.rootDir+self.properties["path"])
 
 				self.update()
 			else:
@@ -143,7 +143,7 @@ class BEEFTexture(BEEFBaseResource):
 	def update(self):
 		self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
 
-		img = wx.Image(self.top.tmpDir+self.properties["path"])
+		img = wx.Image(self.top.rootDir+self.properties["path"])
 		w = img.GetWidth()
 		h = img.GetHeight()
 		self.properties["width"] = w
@@ -165,7 +165,7 @@ class BEEFTexture(BEEFBaseResource):
 	def moveTo(self, name, newfile):
 		if self.properties["path"]:
 			ext = os.path.splitext(self.properties["path"])[1]
-			os.rename(self.top.tmpDir+self.properties["path"], newfile+ext)
+			os.rename(self.top.rootDir+self.properties["path"], newfile+ext)
 			self.properties["path"] = self.path+name+ext
 			self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
 

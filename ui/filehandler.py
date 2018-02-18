@@ -18,7 +18,7 @@ class BEEFFileHandler(FileSystemEventHandler):
 		if not self.top.ready:
 			return
 
-		p = event.src_path[len(self.top.tmpDir):]
+		p = event.src_path[len(self.top.rootDir):]
 		r = self.top.getResourceFromPath(p)
 		if r:
 			if r.name in self.top.gameCfg["open_resources"]:

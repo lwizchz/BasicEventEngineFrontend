@@ -1,0 +1,11 @@
+{
+    "id": 1,
+    "name": "spr_monkey",
+    "properties": {
+        "height": 0,
+        "width": 0,
+        "subimage_amount": 1,
+        "path": "",
+        "speed": 1.0
+    }
+}

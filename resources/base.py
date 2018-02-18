@@ -345,7 +345,7 @@ class BEEFBaseResource:
 		self.properties = s["properties"]
 
 	def checkName(self, name, shouldDelete=True):
-		path = self.top.tmpDir+self.path+name+".json"
+		path = self.top.rootDir+self.path+name+".json"
 		for r in self.resourceList:
 			if r and (not r == self) and (r.name == name):
 				if shouldDelete:
@@ -365,8 +365,8 @@ class BEEFBaseResource:
 		if not self.checkName(name):
 			return False
 
-		oldfile = self.top.tmpDir+self.path+self.name
-		newfile = self.top.tmpDir+self.path+name
+		oldfile = self.top.rootDir+self.path+self.name
+		newfile = self.top.rootDir+self.path+name
 		if os.path.isfile(oldfile+".json"):
 			os.remove(oldfile+".json")
 		self.moveTo(name, newfile)
@@ -396,7 +396,7 @@ class BEEFBaseResource:
 		self.destroyPage()
 
 		self.resourceList[self.id] = None
-		oldfile = self.top.tmpDir+self.path+self.name+".json"
+		oldfile = self.top.rootDir+self.path+self.name+".json"
 		if os.path.isfile(oldfile):
 			os.remove(oldfile)
 

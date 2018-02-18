@@ -254,7 +254,7 @@ class BEEFObject(BEEFBaseResource):
 	def moveTo(self, name, newfile):
 		"""if self.properties["path"]:
 			ext = os.path.splitext(self.properties["path"])[1]
-			os.rename(self.top.tmpDir+self.properties["path"], newfile+ext)
+			os.rename(self.top.rootDir+self.properties["path"], newfile+ext)
 			self.properties["path"] = self.path+name+ext
 			self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))"""
 

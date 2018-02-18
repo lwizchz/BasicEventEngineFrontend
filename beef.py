@@ -22,7 +22,6 @@ import sys
 import os
 import shutil
 import tempfile
-import tarfile
 import glob
 import json
 import itertools
@@ -135,14 +134,14 @@ class BEEFFrame(wx.Frame):
 			ed = BEEFEditDialog(self, t[0], None)
 			self.editDialogs.append(ed)
 
-		self.tmpDir = tempfile.mkdtemp(prefix="beef-")
-		self.projectFilename = ""
+		self.rootDir = tempfile.mkdtemp(prefix="beef-")
+		self.projectFilename = self.rootDir+"/config.beef"
 		self.setUnsaved(False)
 
 		if "watchdog" in sys.modules:
 			self.fileHandler = BEEFFileHandler(self)
 			self.observer = Observer()
-			self.observer.schedule(self.fileHandler, self.tmpDir, recursive=True)
+			self.observer.schedule(self.fileHandler, self.rootDir, recursive=True)
 
 		self.new()
 		if file:
@@ -169,18 +168,6 @@ class BEEFFrame(wx.Frame):
 				self.observer.join()
 		except RuntimeError:
 			pass
-
-		try:
-			# "/cfg" and "/resources" will not be removed when the project is closed if the user closes the program with the window manager, e.g. Alt-F4
-			if os.path.isfile(self.tmpDir + "/config.json"):
-				os.remove(self.tmpDir + "/config.json")
-			if os.path.isdir(self.tmpDir+"/cfg"):
-				shutil.rmtree(self.tmpDir + "/cfg")
-			if os.path.isdir(self.tmpDir+"/resources"):
-				shutil.rmtree(self.tmpDir + "/resources")
-			os.rmdir(self.tmpDir)
-		except OSError:
-			print("Failed to remove temporary directory \"" + self.tmpDir + "\"")
 
 		self.Destroy()
 
@@ -223,8 +210,7 @@ class BEEFFrame(wx.Frame):
 
 		self.compiler.clean()
 
-		with tarfile.open(self.projectFilename, "r:gz") as tar:
-			tar.extractall(self.tmpDir)
+		self.rootDir = os.path.dirname(self.projectFilename)
 
 		try:
 			self._deserialize()
@@ -258,50 +244,50 @@ class BEEFFrame(wx.Frame):
 		self.SetStatusText("Loaded \"" + self.projectFilename + "\"!")
 		self.ready = True
 	def _deserialize(self):
-		with open(self.tmpDir+"/config.json", "r") as f:
+		with open(self.rootDir+"/config.beef", "r") as f:
 			self.gameCfg = json.loads(f.read())
 		self.gameCfg["resource_edit_programs"] = {int(k):v for k,v in self.gameCfg["resource_edit_programs"].items()} # Convert int keys from JSON strings
-		for fn in glob.glob(self.tmpDir+"/resources/textures/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/textures/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFTexture(self, None)
 				r.deserialize(f.read())
 				self.addTexture(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/sounds/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/sounds/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFSound(self, None)
 				r.deserialize(f.read())
 				self.addSound(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/fonts/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/fonts/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFFont(self, None)
 				r.deserialize(f.read())
 				self.addFont(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/paths/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/paths/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFPath(self, None)
 				r.deserialize(f.read())
 				self.addPath(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/timelines/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/timelines/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFTimeline(self, None)
 				r.deserialize(f.read())
 				self.addTimeline(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/meshes/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/meshes/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFMesh(self, None)
 				r.deserialize(f.read())
 				self.addMesh(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/lights/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/lights/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFLight(self, None)
 				r.deserialize(f.read())
 				self.addLight(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/objects/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/objects/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFObject(self, None)
 				r.deserialize(f.read())
 				self.addObject(r.name, r)
-		for fn in glob.glob(self.tmpDir+"/resources/rooms/*.json"):
+		for fn in glob.glob(self.rootDir+"/resources/rooms/*.json"):
 			with open(fn, "r") as f:
 				r = BEEFRoom(self, None)
 				r.deserialize(f.read())
@@ -310,7 +296,7 @@ class BEEFFrame(wx.Frame):
 	def setUnsaved(self, s=True):
 		self._unsaved = s
 
-		filename = self.projectFilename
+		filename = os.path.dirname(self.projectFilename)
 		if filename == "":
 			filename = "New"
 
@@ -354,51 +340,47 @@ class BEEFFrame(wx.Frame):
 			self.SetStatusText("Failed to serialize resources during save!")
 			return
 
-		with tarfile.open(self.projectFilename, "w:gz") as tar:
-			for d in ["/cfg", "/resources", "/config.json"]:
-				tar.add(self.tmpDir+d, arcname=os.path.basename(self.tmpDir+d))
-
 		self.setUnsaved(False)
 		self.SetStatusText("Saved \"" + self.projectFilename + "\"!")
 	def _serialize(self):
-		with open(self.tmpDir+"/config.json", "w") as f:
+		with open(self.rootDir+"/config.beef", "w") as f:
 			f.write(json.dumps(self.gameCfg, indent=4))
 
 		for r in self.textures:
 			if r:
-				with open(self.tmpDir+"/resources/textures/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/textures/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.sounds:
 			if r:
-				with open(self.tmpDir+"/resources/sounds/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/sounds/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.fonts:
 			if r:
-				with open(self.tmpDir+"/resources/fonts/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/fonts/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.paths:
 			if r:
-				with open(self.tmpDir+"/resources/paths/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/paths/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.timelines:
 			if r:
-				with open(self.tmpDir+"/resources/timelines/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/timelines/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.meshes:
 			if r:
-				with open(self.tmpDir+"/resources/meshes/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/meshes/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.lights:
 			if r:
-				with open(self.tmpDir+"/resources/lights/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/lights/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.objects:
 			if r:
-				with open(self.tmpDir+"/resources/objects/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/objects/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 		for r in self.rooms:
 			if r:
-				with open(self.tmpDir+"/resources/rooms/" + r.name + ".json", "w") as f:
+				with open(self.rootDir+"/resources/rooms/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
 	def confirmOverwriteResource(self, fn, name):
 		dialog = wx.MessageDialog(
@@ -446,10 +428,6 @@ class BEEFFrame(wx.Frame):
 				return False
 			dialog.Destroy()
 
-		shutil.rmtree(self.tmpDir + "/cfg")
-		shutil.rmtree(self.tmpDir + "/resources")
-		os.remove(self.tmpDir + "/config.json")
-
 		self.projectFilename = ""
 
 		resources = itertools.chain(
@@ -477,7 +455,9 @@ class BEEFFrame(wx.Frame):
 		self.SetStatusText("Project closed")
 		return True
 	def new(self):
-		self.projectFilename = ""
+		if os.path.dirname(self.rootDir) == "/tmp":
+			self.rootDir = tempfile.mkdtemp(prefix="beef-")
+		self.projectFilename = self.rootDir+"/config.beef"
 
 		self.gameCfg = {
 			"beef_version_major": BEEF_VERSION_MAJOR,
@@ -497,13 +477,13 @@ class BEEFFrame(wx.Frame):
 				5: "", 6: "", 7: "", 8: "", 9: ""
 			}
 		}
-		with open(self.tmpDir+"/config.json", "w") as f:
+		with open(self.projectFilename, "w") as f:
 			f.write(json.dumps(self.gameCfg, indent=4))
 
-		os.mkdir(self.tmpDir + "/cfg")
-		os.mkdir(self.tmpDir + "/resources")
+		os.mkdir(self.rootDir + "/cfg")
+		os.mkdir(self.rootDir + "/resources")
 		for t in self.resourceTypes:
-			os.mkdir(self.tmpDir + "/resources/" + t[1].lower())
+			os.mkdir(self.rootDir + "/resources/" + t[1].lower())
 
 		self.setUnsaved(False)
 		self.SetTitle("New - BEE Frontend v" + self.getVersionString())
@@ -782,7 +762,7 @@ class BEEFFrame(wx.Frame):
 		p = self.editDialogs[resource.type].show()
 		if p:
 			if resource.properties["path"]:
-				subprocess.Popen([p, self.tmpDir+resource.properties["path"]])
+				subprocess.Popen([p, self.rootDir+resource.properties["path"]])
 				return True
 
 		return False

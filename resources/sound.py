@@ -50,7 +50,7 @@ class BEEFSound(BEEFBaseResource):
 		self.pageAddSlider("sl_volume", self.properties["volume"], (4,0))
 
 		if self.properties["path"]:
-			self.sound = wx.adv.Sound(self.top.tmpDir+self.properties["path"])
+			self.sound = wx.adv.Sound(self.top.rootDir+self.properties["path"])
 
 		playSizer = wx.BoxSizer()
 		bt_play = self.pageMakeBmpbutton("bt_play", "images/sound/play.png", tooltip="Play Sound")
@@ -87,7 +87,7 @@ class BEEFSound(BEEFBaseResource):
 				"All files (*)|*"
 			)
 
-			d = self.top.tmpDir+os.path.dirname(self.properties["path"])
+			d = self.top.rootDir+os.path.dirname(self.properties["path"])
 			f = os.path.basename(self.properties["path"])
 			if not self.properties["path"]:
 				d = os.getcwd()
@@ -106,7 +106,7 @@ class BEEFSound(BEEFBaseResource):
 				ext = os.path.splitext(path)[1]
 
 				self.properties["path"] = self.path+self.name+ext
-				shutil.copyfile(path, self.top.tmpDir+self.properties["path"])
+				shutil.copyfile(path, self.top.rootDir+self.properties["path"])
 
 				self.update()
 			else:
@@ -144,7 +144,7 @@ class BEEFSound(BEEFBaseResource):
 			self.properties["pan"] = self.inputs["sl_pan"].GetValue()
 	def moveTo(self, name, newfile):
 		ext = os.path.splitext(self.properties["path"])[1]
-		os.rename(self.top.tmpDir+self.properties["path"], newfile+ext)
+		os.rename(self.top.rootDir+self.properties["path"], newfile+ext)
 		self.properties["path"] = self.path+name+ext
 		self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
 

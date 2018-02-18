@@ -1,0 +1,29 @@
+{
+    "id": 0,
+    "name": "tl_0",
+    "properties": {
+        "actions": [
+            [
+                "0",
+                "log",
+                "// This code will run when the timeline is started\n\nfor (int i=0; i<5; ++i) {\n\tmessenger::send({\"tl_0\", \"0\"}, E_MESSAGE::GENERAL, \"timeline0: \" + bee_itos(i));\n}\n"
+            ],
+            [
+                "1000",
+                "doSomething",
+                "// This code will run 1000ms after the timeline is started\n"
+            ],
+            [
+                "2000",
+                "doSomethingElse",
+                "// This code will run 2000ms after the timeline is started\n"
+            ],
+            [
+                "3000",
+                "doNothing",
+                "// This code will run 3000ms after the timeline is started\n"
+            ]
+        ],
+        "end_action": ""
+    }
+}

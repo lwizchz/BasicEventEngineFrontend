@@ -1,0 +1,8 @@
+{
+    "id": 0,
+    "name": "mesh_0",
+    "properties": {
+        "path": "/resources/meshes/mesh_0.obj",
+        "has_material": true
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "id": 0,
+    "name": "spr_bee",
+    "properties": {
+        "height": 100,
+        "width": 200,
+        "subimage_amount": 2,
+        "path": "/resources/textures/spr_bee.png",
+        "speed": 1.0
+    }
+}

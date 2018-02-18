@@ -1,0 +1,28 @@
+{
+    "id": 0,
+    "name": "rm_0",
+    "properties": {
+        "width": 1920,
+        "height": 1080,
+        "is_persistent": false,
+        "background_color": [
+            255,
+            255,
+            255,
+            255
+        ],
+        "is_background_color_enabled": true,
+        "backgrounds": [],
+        "is_views_enabled": false,
+        "views": [],
+        "instances": [
+            [
+                "obj_0",
+                0.0,
+                0.0,
+                0
+            ]
+        ],
+        "gravity": 0.0
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "id": 0,
+    "name": "obj_0",
+    "properties": {
+        "sprite": "spr_bee",
+        "is_solid": false,
+        "is_visible": true,
+        "is_persistent": false,
+        "depth": 0,
+        "parent": "",
+        "mask": "",
+        "xoffset": 0,
+        "yoffset": 0,
+        "is_pausable": true,
+        "events": {
+            "1": "void Obj0::create(bee::Instance* self) {\n\tbee::console::run(\"exec \\\"config.cfg\\\"\");\n\t\n\tthis->set_mask_offset(std::make_pair(-50, -50));\n\t\n\tbee::messenger::send({\"example\"}, bee::E_MESSAGE::INFO, \"testing :)\");\n\t\n\tbee::get_current_room()->set_background_color({100, 100, 100, 255});\n\t\n\tbee::console::add_keybind(SDLK_1, bee::KeyBind(\"PlaySound\"), [] (const bee::MessageContents& msg) {\n\t\tsnd_chirp->play();\n\t});\n\t\n\ttl_0->start();\n}\n",
+            "23": "void Obj0::draw(bee::Instance* self) {\n\tself->draw();\n}\n"
+        }
+    }
+}

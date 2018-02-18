@@ -1,0 +1,28 @@
+{
+    "id": 0,
+    "name": "lt_0",
+    "properties": {
+        "type": 1,
+        "position": [
+            0,
+            0,
+            0
+        ],
+        "direction": [
+            0,
+            0,
+            0
+        ],
+        "attenuation": [
+            0,
+            0,
+            0
+        ],
+        "color": [
+            100,
+            255,
+            50,
+            255
+        ]
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "id": 0,
+    "name": "obj_0",
+    "properties": {
+        "sprite": "",
+        "is_solid": false,
+        "is_visible": true,
+        "is_persistent": false,
+        "depth": 0,
+        "parent": "",
+        "mask": "",
+        "xoffset": 0,
+        "yoffset": 0,
+        "is_pausable": true,
+        "events": {
+            "1": "void Obj0::create(bee::Instance* self) {\n\tbee::console::run(\"exec config.cfg\");\n\t\n\tbee::messenger::log(\"Hello, World!\");\n}\n",
+            "23": "void Obj0::draw(bee::Instance* self) {\n\tbee::engine->font_default->draw_fast(0, 0, \"Hello, World!\\nPress ESC to exit\");\n}\n"
+        }
+    }
+}
