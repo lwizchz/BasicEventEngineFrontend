@@ -14,6 +14,7 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 from resources.enum import EEvent
 
 from ui.eventdialog import BEEFEventDialog
@@ -22,7 +23,7 @@ class BEEFObject(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/objects/"
-		self.type = 8
+		self.type = EResource.OBJECT
 		self.properties = {
 			"sprite": "",
 			"is_solid": False,
@@ -68,6 +69,9 @@ class BEEFObject(BEEFBaseResource):
 	def getEvents(self):
 		return [data[1] for event, data in self.tmpEvents.items()]
 	def getEventHeaders(self):
+		if not self.tmpEvents:
+			self.initTmpEvents()
+
 		def getConst(event):
 			if event == EEvent.getIndex("Check Collision Filter"):
 				return " const"
@@ -86,6 +90,12 @@ class BEEFObject(BEEFBaseResource):
 		#	init += "\n\t\t\t{name}->set_mask({mask});".format(name=self.name, mask=self.properties["mask"])
 		return init
 
+	def initTmpEvents(self):
+		self.tmpEvents = {}
+		index = 0
+		for event, code in self.properties["events"].items():
+			self.tmpEvents[int(event)] = [index, code, 0]
+			index += 1
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)
 
@@ -107,18 +117,10 @@ class BEEFObject(BEEFBaseResource):
 		lst = self.pageAddListCtrl("lst_events", ["Events"], (4,0), (1,2)) # Perhaps replace with a Grid
 		lst.SetColumnWidth(0, lst.GetSize()[0]/2)
 
-		self.tmpEvents = {}
-		firstEventCode = ""
-		index = 0
-		for event, code in self.properties["events"].items():
+		self.initTmpEvents()
+		for event, data in self.tmpEvents.items():
 			event = int(event)
 			self.addListRow("lst_events", [EEvent.get(event)], isSortable=False)
-			self.tmpEvents[event] = [index, code, 0]
-
-			if index == 0:
-				firstEventCode = code
-
-			index += 1
 
 		self.pageAddButton("bt_add_event", "Add Event", (5,0))
 		self.pageAddButton("bt_remove_event", "Remove Event", (5,1))
@@ -129,9 +131,7 @@ class BEEFObject(BEEFBaseResource):
 		self.lastSelected = -1
 		ed = self.pageAddEditor("ed_event", (0,3), (6,1))
 		if len(self.tmpEvents) > 0:
-			ed.SetText(firstEventCode)
-			lst.Select(0)
-			self.lastSelected = 0
+			self.changeSelection(0)
 		else:
 			ed.Enable(False)
 

@@ -14,12 +14,13 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 
 class BEEFRoom(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/rooms/"
-		self.type = 9
+		self.type = EResource.ROOM
 		self.properties = {
 			"width": 1920,
 			"height": 1080,

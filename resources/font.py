@@ -14,13 +14,14 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 from resources.enum import EFontStyle
 
 class BEEFFont(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/fonts/"
-		self.type = 3
+		self.type = EResource.FONT
 		self.properties = {
 			"path": "",
 			"style": EFontStyle.NORMAL,

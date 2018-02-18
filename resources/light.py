@@ -14,13 +14,14 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 from resources.enum import ELight
 
 class BEEFLight(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/lights/"
-		self.type = 7
+		self.type = EResource.LIGHT
 		self.properties = {
 			"type": ELight.AMBIENT,
 			"position": (0, 0, 0),

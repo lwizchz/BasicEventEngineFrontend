@@ -4,6 +4,48 @@
 # BEEF is free software and comes with ABSOLUTELY NO WARANTY.
 # See LICENSE for more details.
 
+class EResource:
+	TEXTURE = 0
+	SOUND = 1
+	FONT = 2
+	PATH = 3
+	TIMELINE = 4
+	MESH = 5
+	LIGHT = 6
+	OBJECT = 7
+	ROOM = 8
+	_MAX = 9
+
+	@staticmethod
+	def get(type):
+		if type == EResource.TEXTURE:
+			return "Texture"
+		elif type == EResource.SOUND:
+			return "Sound"
+		elif type == EResource.FONT:
+			return "Font"
+		elif type == EResource.PATH:
+			return "Path"
+		elif type == EResource.TIMELINE:
+			return "Timeline"
+		elif type == EResource.MESH:
+			return "Mesh"
+		elif type == EResource.LIGHT:
+			return "Light"
+		elif type == EResource.OBJECT:
+			return "Object"
+		elif type == EResource.ROOM:
+			return "Room"
+	@staticmethod
+	def getPlural(type):
+		if type == EResource.MESH:
+			return "Meshes"
+		else:
+			return EResource.get(type) + "s"
+	@staticmethod
+	def getAll():
+		return range(0, EResource._MAX)
+
 class EFontStyle:
 	NORMAL = 0
 	BOLD = 1

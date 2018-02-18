@@ -14,6 +14,7 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 
 from ui.validators import BEEFValidatorInt
 from ui.validators import BEEFValidatorIdentifier
@@ -22,7 +23,7 @@ class BEEFTimeline(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/timelines/"
-		self.type = 5
+		self.type = EResource.TIMELINE
 		self.properties = {
 			"actions": [], # Each action is as follows: (timestamp, "name", "code")
 			"end_action": ""

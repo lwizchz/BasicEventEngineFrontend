@@ -14,12 +14,13 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 
 class BEEFTexture(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/textures/"
-		self.type = 0
+		self.type = EResource.TEXTURE
 		self.properties = {
 			"path": "",
 			"width": 0,

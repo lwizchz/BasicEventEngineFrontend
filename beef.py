@@ -30,7 +30,7 @@ import queue
 
 BEEF_VERSION_MAJOR = 0
 BEEF_VERSION_MINOR = 1
-BEEF_VERSION_RELEASE = 1
+BEEF_VERSION_RELEASE = 2
 
 from ui.menubar import BEEFMenuBar
 from ui.toolbar import BEEFToolBar
@@ -43,6 +43,7 @@ if "watchdog" in sys.modules:
 from core.compiler import Compiler
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 from resources.texture import BEEFTexture
 from resources.sound import BEEFSound
 from resources.font import BEEFFont
@@ -64,18 +65,6 @@ class BEEFFrame(wx.Frame):
 		self.Bind(wx.EVT_CLOSE, self.quit)
 
 		self.gameCfg = {}
-
-		self.resourceTypes = [
-			["Texture", "Textures"],
-			["Sound", "Sounds"],
-			["Font", "Fonts"],
-			["Path", "Paths"],
-			["Timeline", "Timelines"],
-			["Mesh", "Meshes"],
-			["Light", "Lights"],
-			["Object", "Objects"],
-			["Room", "Rooms"]
-		]
 
 		self.textures = []
 		self.sounds = []
@@ -130,8 +119,8 @@ class BEEFFrame(wx.Frame):
 		self.pane2.SetSizer(self.sizer)
 
 		self.editDialogs = []
-		for t in self.resourceTypes:
-			ed = BEEFEditDialog(self, t[0], None)
+		for t in EResource.getAll():
+			ed = BEEFEditDialog(self, EResource.get(t), None)
 			self.editDialogs.append(ed)
 
 		self.rootDir = tempfile.mkdtemp(prefix="beef-")
@@ -455,7 +444,7 @@ class BEEFFrame(wx.Frame):
 		self.SetStatusText("Project closed")
 		return True
 	def new(self):
-		if os.path.dirname(self.rootDir) == "/tmp":
+		if os.path.dirname(self.rootDir) != "/tmp":
 			self.rootDir = tempfile.mkdtemp(prefix="beef-")
 		self.projectFilename = self.rootDir+"/config.beef"
 
@@ -482,8 +471,8 @@ class BEEFFrame(wx.Frame):
 
 		os.mkdir(self.rootDir + "/cfg")
 		os.mkdir(self.rootDir + "/resources")
-		for t in self.resourceTypes:
-			os.mkdir(self.rootDir + "/resources/" + t[1].lower())
+		for t in EResource.getAll():
+			os.mkdir(self.rootDir + "/resources/" + EResource.getPlural(t).lower())
 
 		self.setUnsaved(False)
 		self.SetTitle("New - BEE Frontend v" + self.getVersionString())

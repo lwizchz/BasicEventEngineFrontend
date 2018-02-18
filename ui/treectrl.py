@@ -9,6 +9,8 @@ try:
 except ImportError:
 	raise ImportError("The wxPython module is required to run this program")
 
+from resources.enum import EResource
+
 class BEEFTreeCtrl(wx.TreeCtrl):
 	def __init__(self, top, parent):
 		wx.TreeCtrl.__init__(self, parent, -1, wx.DefaultPosition, wx.DefaultSize, wx.TR_HAS_BUTTONS | wx.TR_EDIT_LABELS | wx.TR_HIDE_ROOT | wx.TR_FULL_ROW_HIGHLIGHT)
@@ -29,9 +31,9 @@ class BEEFTreeCtrl(wx.TreeCtrl):
 		self.SetItemImage(self.root, self.iconFolderOpen, wx.TreeItemIcon_Expanded)
 
 		self.rootList = []
-		for r in self.top.resourceTypes:
-			c = self.AppendItem(self.root, r[1])
-			self.SetItemData(c, r[0])
+		for r in EResource.getAll():
+			c = self.AppendItem(self.root, EResource.getPlural(r))
+			self.SetItemData(c, EResource.get(r))
 
 			self.SetItemImage(c, self.iconFolder, wx.TreeItemIcon_Normal)
 			self.SetItemImage(c, self.iconFolderOpen, wx.TreeItemIcon_Expanded)

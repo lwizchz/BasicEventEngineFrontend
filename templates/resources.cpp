@@ -92,7 +92,7 @@ int bee::init_resources() {{
 	return 0; // Return 0 on success
 }}
 
-#define DEL(x) delete x; x=nullptr
+#define DEL(x) if (x!=nullptr) {{delete x; x=nullptr;}}
 /*
 * bee::close_resources() - Destroy all game resources
 */

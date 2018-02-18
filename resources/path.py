@@ -14,6 +14,7 @@ import os
 import shutil
 
 from resources.base import BEEFBaseResource
+from resources.enum import EResource
 
 from ui.validators import BEEFValidatorFloat
 
@@ -21,7 +22,7 @@ class BEEFPath(BEEFBaseResource):
 	def __init__(self, top, name):
 		BEEFBaseResource.__init__(self, top, name)
 		self.path = "/resources/paths/"
-		self.type = 4
+		self.type = EResource.PATH
 		self.properties = {
 			"coordinates": [],
 			"is_curved": False,
