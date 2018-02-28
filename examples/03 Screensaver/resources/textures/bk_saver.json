@@ -1,0 +1,11 @@
+{
+    "id": 0,
+    "name": "bk_saver",
+    "properties": {
+        "path": "/resources/textures/bk_saver.png",
+        "width": 320,
+        "height": 368,
+        "subimage_amount": 1,
+        "speed": 1.0
+    }
+}

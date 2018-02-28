@@ -64,10 +64,37 @@ class BEEFObject(BEEFBaseResource):
 		ed.SetText(self.tmpEvents[self.getSelectedEvent(self.lastSelected)][1])
 		ed.EmptyUndoBuffer()
 
+	def getExtraHeaders(self):
+		if EEvent.getIndex("Extra Headers") in self.tmpEvents:
+			return self.tmpEvents[EEvent.getIndex("Extra Headers")][1]
+		return ""
 	def getImplementedEvents(self):
-		return ["bee::E_EVENT::{}".format(EEvent.get(event).upper().replace(" ", "_")) for event, data in self.tmpEvents.items()]
+		return ["bee::E_EVENT::{}".format(EEvent.get(event).upper().replace(" ", "_")) for event, data in self.tmpEvents.items() if EEvent.get(event) not in ["Extra Headers", "Extra Functions"]]
 	def getEvents(self):
-		return [data[1] for event, data in self.tmpEvents.items()]
+		return [data[1] for event, data in self.tmpEvents.items() if EEvent.get(event) != "Extra Headers"]
+	def getExtraFunctionHeaders(self):
+		if EEvent.getIndex("Extra Functions") not in self.tmpEvents:
+			return []
+
+		h = []
+		ef_lines = self.tmpEvents[EEvent.getIndex("Extra Functions")][1].split("\n")
+		ef = [f for f in ef_lines if f and f.lstrip() == f]
+
+		objname = self.name.replace("_", " ").title().replace(" ", "")
+
+		for f in ef:
+			start = f.find(objname+"::")
+			if start != -1:
+				decl = f[:start]
+
+				start += len(objname+"::")
+				end = f.rfind(")")+1
+
+				decl += f[start:end]
+				decl += ";"
+
+				h.append(decl)
+		return h
 	def getEventHeaders(self):
 		if not self.tmpEvents:
 			self.initTmpEvents()
@@ -77,7 +104,8 @@ class BEEFObject(BEEFBaseResource):
 				return " const"
 			return ""
 
-		return ["void {event}({params}){const};".format(event=EEvent.get(event).lower().replace(" ", "_"), params=EEvent.getParamTypes(EEvent.get(event)), const=getConst(event)) for event, data in self.tmpEvents.items()]
+		eh = ["void {event}({params}){const};".format(event=EEvent.get(event).lower().replace(" ", "_"), params=EEvent.getParamTypes(EEvent.get(event)), const=getConst(event)) for event, data in self.tmpEvents.items() if EEvent.get(event) not in ["Extra Headers", "Extra Functions"]]
+		return eh + self.getExtraFunctionHeaders()
 	def getInit(self):
 		init = ""
 		#if self.properties["is_solid"]:
@@ -173,10 +201,12 @@ class BEEFObject(BEEFBaseResource):
 
 			self.addListRow("lst_events", [newEvent], isSortable=False)
 
-			c = ""
-			if newEvent in ["Check Collision Filter"]:
-				c = "const "
-			initialCode = self.initialEventCode.format(objname=self.name.replace("_", " ").title().replace(" ", ""), event=newEvent.lower().replace(" ", "_"), params=EEvent.getParams(newEvent), const=c)
+			initialCode = ""
+			if newEvent not in ["Extra Headers", "Extra Functions"]:
+				c = ""
+				if newEvent in ["Check Collision Filter"]:
+					c = "const "
+					initialCode = self.initialEventCode.format(objname=self.name.replace("_", " ").title().replace(" ", ""), event=newEvent.lower().replace(" ", "_"), params=EEvent.getParams(newEvent), const=c)
 
 			self.lastSelected = len(self.tmpEvents)
 			for i in range(self.lastSelected):

@@ -22,8 +22,9 @@ class BEEFEventDialog(wx.Dialog):
 		label = wx.StaticText(self, -1, "Event Type:")
 		sizer.Add(label, 0, wx.ALL, 5)
 
-		self.list = wx.ListBox(self, -1, wx.DefaultPosition, wx.DefaultSize, choices=EEvent._events)
+		self.list = wx.ListBox(self, -1, wx.DefaultPosition, wx.DefaultSize, EEvent._events)
 		self.list.SetSelection(1)
+		self.Bind(wx.EVT_LISTBOX_DCLICK, self.doubleClick, self.list)
 		sizer.Add(self.list, 0, wx.ALL, 5)
 
 		line = wx.StaticLine(self, -1, style=wx.LI_HORIZONTAL)
@@ -43,6 +44,9 @@ class BEEFEventDialog(wx.Dialog):
 		sizer.Fit(self)
 
 		self.CenterOnScreen()
+
+	def doubleClick(self, event):
+		self.EndModal(wx.ID_OK)
 
 	def getEvent(self):
 		return self.list.GetSelection()

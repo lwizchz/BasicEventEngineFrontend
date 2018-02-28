@@ -49,6 +49,8 @@ class Compiler:
 		print("Generating {} resources...".format(self.top.gameCfg["game_name"]))
 		self._createDir(self.resDir)
 		self._generate()
+		self._copyConfigs()
+		self._copyExtras()
 
 		if type == ECompile.DEBUG:
 			print("Compiling {} in debug mode...".format(self.top.gameCfg["game_name"]))
@@ -73,7 +75,7 @@ class Compiler:
 		return 0
 	def run(self):
 		print("Running {}...".format(self.top.gameCfg["game_name"]))
-		copytree("{}/resources".format(self.top.rootDir), "{}/resources".format(self.srcDir))
+		self._copyResources()
 		subprocess.Popen(["./build/{}".format(self.top.gameCfg["game_name"]), "--no-assert"], cwd="{}".format(self.srcDir))
 	def debug(self):
 		print("Debugging {}...".format(self.top.gameCfg["game_name"]))
@@ -95,9 +97,12 @@ class Compiler:
 				raise
 
 	def _generate(self):
+		#shutil.rmtree("{}/resources".format(self.srcDir))
+
 		self._generateObjects()
 		self._generateRooms()
 		self._generateResources()
+		self._generateExtras()
 		self._generateCMake()
 	def _generateObjects(self):
 		self._createDir(self.resDir+"/objects")
@@ -122,6 +127,7 @@ class Compiler:
 			obj = objTemplate.format(
 				capname=o.name.upper(),
 				name=o.name,
+				headers=o.getExtraHeaders(),
 				objname=o.name.replace("_", " ").title().replace(" ", ""),
 				implevents=",\n\t\t".join(o.getImplementedEvents()),
 				is_persistent=is_persistent,
@@ -166,8 +172,11 @@ class Compiler:
 		mainTemplate = ""
 		with open("templates/main.cpp", "r")  as mainTemplateFile:
 			mainTemplate = mainTemplateFile.read()
+		firstRoom = self.top.gameCfg["first_room"]
+		if not firstRoom:
+			firstRoom = self.top.rooms[0].name
 		main = mainTemplate.format(
-			first_room=self.top.rooms[0].name
+			firstRoom=firstRoom
 		)
 		with open("{}/main.cpp".format(self.srcDir), "w") as mainFile:
 			mainFile.write(main)
@@ -228,6 +237,15 @@ class Compiler:
 		)
 		with open(self.resDir+"/resources.cpp", "w") as resourcesFile:
 			resourcesFile.write(resources)
+	def _generateExtras(self):
+		extras = ""
+		with open("templates/extras.hpp") as extrasTemplate:
+			extras = extrasTemplate.read()
+		extras = extras.format(
+			extras="\n".join(["#include \"extras/{}\"".format(extra.name) for extra in self.top.extras if os.path.splitext(extra.name)[1] == ".hpp"])
+		)
+		with open(self.resDir+"/extras.hpp", "w") as extrasFile:
+			extrasFile.write(extras)
 	def _generateCMake(self):
 		config = ""
 		with open("templates/config.sh", "r") as configTemplate:
@@ -246,9 +264,19 @@ class Compiler:
 			cmake = cmakeTemplate.read()
 		cmake = cmake.format(
 			objects=" ".join(["objects/{}.cpp".format(obj.name) for obj in self.top.objects]),
-			rooms=" ".join(["rooms/{}.cpp".format(room.name) for room in self.top.rooms])
+			rooms=" ".join(["rooms/{}.cpp".format(room.name) for room in self.top.rooms]),
+			extras=" ".join(["extras/{}".format(extra.name) for extra in self.top.extras if os.path.splitext(extra.name)[1] == ".cpp"])
 		)
 		with open(self.resDir+"/CMakeLists.txt", "w") as cmakeFile:
 			cmakeFile.write(cmake)
 
 		shutil.copyfile("templates/CMakeLists.txt", "{}/CMakeLists.txt".format(self.srcDir))
+
+	def _copyConfigs(self):
+		if self.top.configs:
+			shutil.rmtree("{}/cfg".format(self.srcDir))
+			copytree("{}/cfg".format(self.top.rootDir), "{}/cfg".format(self.srcDir))
+	def _copyExtras(self):
+		copytree("{}/resources/extras".format(self.top.rootDir), "{}/resources/extras".format(self.srcDir))
+	def _copyResources(self):
+		copytree("{}/resources".format(self.top.rootDir), "{}/resources".format(self.srcDir))

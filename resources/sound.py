@@ -133,6 +133,7 @@ class BEEFSound(BEEFBaseResource):
 		return True
 
 	def update(self):
+		self.sound = wx.adv.Sound(self.top.rootDir+self.properties["path"])
 		self.inputs["st_path"].SetLabel("Path: {}".format(self.properties["path"]))
 
 	def commitPage(self):

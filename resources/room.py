@@ -26,13 +26,13 @@ class BEEFRoom(BEEFBaseResource):
 			"height": 1080,
 			"is_persistent": False,
 
-			"background_color": [255, 255, 255, 255],
 			"is_background_color_enabled": True,
-			"backgrounds": [],
+			"background_color": [255, 255, 255, 255],
+			"backgrounds": [], # Each background is as follows: {"texture": t, "is_visible": v, "is_foreground": f, "pos": (x, y), "tile": (h, v), "speed": (h, v), "is_stretched": s}
 			"is_views_enabled": False,
-			"views": [],
+			"views": {}, # Each view is as follows: (id: {"is_active": a, "view": (x, y, w, h), "port": (x, y, w, h)})
 
-			"instances": [], # Each instance is as follows: [object, x, y, z]
+			"instances": [], # Each Instance is as follows: [object, x, y, z]
 			"gravity": 0.0
 		}
 
@@ -42,6 +42,22 @@ class BEEFRoom(BEEFBaseResource):
 		return []
 	def getInstanceMap(self):
 		return ["{}\t{}\t{}\t{}".format(*inst) for inst in self.properties["instances"]]
+	def getInit(self):
+		init = ""
+		if self.properties["is_persistent"]:
+			init += "\n\t\t\t{name}->set_is_persistent(true);".format(name=self.name)
+		if not self.properties["is_background_color_enabled"]:
+			init += "\n\t\t\t{name}->set_is_background_color_enabled(false);".format(name=self.name)
+		if self.properties["background_color"]:
+			init += "\n\t\t\t{name}->set_background_color({{{c[0]}, {c[1]}, {c[2]}, {c[3]}}});".format(name=self.name, c=self.properties["background_color"])
+		for b in self.properties["backgrounds"]:
+			init += "\n\t\t\t{name}->add_background({b[texture]}, {b[is_visible]}, {b[is_foreground]}, {b[pos][0]}, {b[pos][1]}, {b[tile][0]}, {b[tile][1]}, {b[speed][0]}, {b[speed][1]}, {b[is_stretched]});".format(name=self.name, b=b)
+		if self.properties["is_views_enabled"]:
+			init += "\n\t\t\t{name}->set_is_views_enabled(true);".format(name=self.name)
+		for k, v in self.properties["views"].items():
+			init += "\n\t\t\t{name}->set_view({id}, bee::ViewPort({v[is_active]}, {{{v[view][0]}, {v[view][1]}, {v[view][2]}, {v[view][3]}}}, {{{v[port][0]}, {v[port][1]}, {v[port][2]}, {v[port][3]}}}));".format(name=self.name, id=k, v=v)
+
+		return init
 
 	def initPageSpecific(self):
 		self.gbs = wx.GridBagSizer(12, 2)

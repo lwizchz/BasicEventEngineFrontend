@@ -1,0 +1,21 @@
+{
+    "id": 0,
+    "name": "obj_screensaver",
+    "properties": {
+        "sprite": "",
+        "is_solid": false,
+        "is_visible": true,
+        "is_persistent": false,
+        "depth": 0,
+        "parent": "",
+        "mask": "",
+        "xoffset": 0,
+        "yoffset": 0,
+        "is_pausable": true,
+        "events": {
+            "10": "void ObjScreensaver::mouse_input(bee::Instance* self, SDL_Event* e) {\n\tbee::end_game();\n}\n",
+            "9": "void ObjScreensaver::keyboard_input(bee::Instance* self, SDL_Event* e) {\n\tbee::end_game();\n}\n",
+            "1": "void ObjScreensaver::create(bee::Instance* self) {\n\tbee::get_current_room()->add_background(bk_saver, true, false, 0, 0, true, true, 5, 5, false);\n}\n"
+        }
+    }
+}

@@ -1,6 +1,6 @@
 # BEEF auto-generated the below code and will overwrite all changes
 
-set(deps resources.cpp {objects} {rooms})
+set(deps resources.cpp {objects} {rooms} {extras})
 
 if (WIN32)
 	set(SRC ${{${{PROJECT_NAME}}_SOURCE_DIR}})

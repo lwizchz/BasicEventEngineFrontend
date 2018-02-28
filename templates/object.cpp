@@ -18,6 +18,8 @@
 
 #include "{name}.hpp"
 
+{headers}
+
 {objname}::{objname}() : Object("{name}", "{name}.cpp") {{
 	implemented_events.insert({{
 		{implevents}

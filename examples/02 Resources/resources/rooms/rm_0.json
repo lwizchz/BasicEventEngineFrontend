@@ -14,7 +14,7 @@
         "is_background_color_enabled": true,
         "backgrounds": [],
         "is_views_enabled": false,
-        "views": [],
+        "views": {},
         "instances": [
             [
                 "obj_0",

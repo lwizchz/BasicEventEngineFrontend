@@ -1,23 +1,23 @@
 {
     "id": 0,
-    "name": "rm_0",
+    "name": "rm_main",
     "properties": {
         "width": 1920,
         "height": 1080,
         "is_persistent": false,
+        "is_background_color_enabled": true,
         "background_color": [
             255,
             255,
             255,
             255
         ],
-        "is_background_color_enabled": true,
         "backgrounds": [],
         "is_views_enabled": false,
         "views": {},
         "instances": [
             [
-                "obj_0",
+                "obj_screensaver",
                 0.0,
                 0.0,
                 0

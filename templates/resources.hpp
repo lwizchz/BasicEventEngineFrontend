@@ -12,6 +12,8 @@
 #include "../bee/util.hpp"
 #include "../bee/all.hpp"
 
+#include "extras.hpp"
+
 // BEEF auto-generated the below code and will overwrite all changes
 
 // Define textures

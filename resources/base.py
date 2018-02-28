@@ -345,9 +345,11 @@ class BEEFBaseResource:
 		self.properties = s["properties"]
 
 	def checkName(self, name, shouldDelete=True):
+		if not name:
+			import pdb; pdb.set_trace()
 		path = self.top.rootDir+self.path+name+".json"
 		for r in self.resourceList:
-			if r and (not r == self) and (r.name == name):
+			if r and not r == self and r.name == name:
 				if shouldDelete:
 					if not self.top.confirmOverwriteResource(path, name):
 						return False
@@ -369,7 +371,7 @@ class BEEFBaseResource:
 		newfile = self.top.rootDir+self.path+name
 		if os.path.isfile(oldfile+".json"):
 			os.remove(oldfile+".json")
-		self.moveTo(name, newfile)
+			self.moveTo(name, newfile)
 
 		if self.name in self.top.gameCfg["open_resources"]:
 			self.top.gameCfg["open_resources"].remove(self.name)

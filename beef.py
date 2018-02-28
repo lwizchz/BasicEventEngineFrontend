@@ -54,6 +54,9 @@ from resources.light import BEEFLight
 from resources.object import BEEFObject
 from resources.room import BEEFRoom
 
+from resources.config import BEEFConfig
+from resources.extra import BEEFExtra
+
 class BEEFFrame(wx.Frame):
 	def __init__(self, parent, id, file):
 		wx.Frame.__init__(self, parent, id, "BEE Frontend v" + self.getVersionString(), size=(1280, 720))
@@ -75,6 +78,8 @@ class BEEFFrame(wx.Frame):
 		self.lights = []
 		self.objects = []
 		self.rooms = []
+		self.configs = []
+		self.extras = []
 
 		self.images = {}
 		for n, p in {
@@ -158,6 +163,9 @@ class BEEFFrame(wx.Frame):
 		except RuntimeError:
 			pass
 
+		if os.path.dirname(self.rootDir) == "/tmp":
+			shutil.rmtree(self.rootDir)
+
 		self.Destroy()
 
 	def getDir(self):
@@ -171,7 +179,7 @@ class BEEFFrame(wx.Frame):
 		info = wx.adv.AboutDialogInfo()
 		info.SetName("BasicEventEngine Frontend")
 		info.SetVersion("v" + self.getVersionString())
-		info.SetCopyright("(c) 2017 Luke Montalvo <lukemontalvo@gmail.com>")
+		info.SetCopyright("(c) 2017-18 Luke Montalvo <lukemontalvo@gmail.com>")
 		info.SetDescription(
 			"BEEF is the graphical editor for the BasicEventEngine, an OpenGL game engine written in C++.\n\n"
 			"The entire project is under heavy development so please report all bugs to Luke! :)"
@@ -210,11 +218,12 @@ class BEEFFrame(wx.Frame):
 
 		self.treectrl.expandRoot()
 
-		resources = itertools.chain(
+		resources = list(itertools.chain(
 			self.textures, self.sounds, self.fonts,
 			self.paths, self.timelines, self.meshes,
-			self.lights, self.objects, self.rooms
-		)
+			self.lights, self.objects, self.rooms,
+			self.configs, self.extras
+		))
 		orl = self.gameCfg["open_resources"]
 		self.gameCfg["open_resources"] = []
 		for res in orl:
@@ -281,12 +290,22 @@ class BEEFFrame(wx.Frame):
 				r = BEEFRoom(self, None)
 				r.deserialize(f.read())
 				self.addRoom(r.name, r)
+		for fn in glob.glob(self.rootDir+"/cfg/*"):
+			with open(fn, "r") as f:
+				r = BEEFConfig(self, os.path.basename(fn))
+				r.deserialize(f.read())
+				self.addConfig(r.name, r)
+		for fn in glob.glob(self.rootDir+"/resources/extras/*"):
+			with open(fn, "r") as f:
+				r = BEEFExtra(self, os.path.basename(fn))
+				r.deserialize(f.read())
+				self.addExtra(r.name, r)
 
 	def setUnsaved(self, s=True):
 		self._unsaved = s
 
 		filename = os.path.dirname(self.projectFilename)
-		if filename == "":
+		if filename == "" or os.path.dirname(filename) == "/tmp":
 			filename = "New"
 
 		if self._unsaved:
@@ -294,23 +313,42 @@ class BEEFFrame(wx.Frame):
 		else:
 			self.SetTitle(os.path.basename(filename) + " - BEE Frontend v" + self.getVersionString())
 	def save(self, filename=None):
+		tmpDir = ""
+
 		if filename:
 			self.projectFilename = filename
+
+			if os.path.dirname(self.rootDir) == "/tmp":
+				tmpDir = self.rootDir
+			self.rootDir = os.path.dirname(self.projectFilename)
+
+			os.mkdir(self.rootDir + "/cfg")
+			os.mkdir(self.rootDir + "/resources")
+			os.mkdir(self.rootDir + "/resources/extras")
+			for t in EResource.getAll():
+				os.mkdir(self.rootDir + "/resources/" + EResource.getPlural(t).lower())
+
 			self.setUnsaved()
 
 		if self.projectFilename == "":
 			self.log("Failed to save, empty filename")
 			return
 
-		if not self._unsaved:
+		if os.path.dirname(self.rootDir) == "/tmp":
+			self.menubar.MenuFileSaveAs(None)
 			return
+
+		if not self._unsaved:
+			#return
+			pass
 
 		self.log("Saving \"" + self.projectFilename + "\"...")
 
 		resources = itertools.chain(
 			self.textures, self.sounds, self.fonts,
 			self.paths, self.timelines, self.meshes,
-			self.lights, self.objects, self.rooms
+			self.lights, self.objects, self.rooms,
+			self.configs, self.extras
 		)
 		for r in resources:
 			if r:
@@ -328,6 +366,9 @@ class BEEFFrame(wx.Frame):
 			self.log("Failed to serialize resources during save!")
 			self.SetStatusText("Failed to serialize resources during save!")
 			return
+
+		if tmpDir:
+			shutil.rmtree(tmpDir)
 
 		self.setUnsaved(False)
 		self.SetStatusText("Saved \"" + self.projectFilename + "\"!")
@@ -371,6 +412,16 @@ class BEEFFrame(wx.Frame):
 			if r:
 				with open(self.rootDir+"/resources/rooms/" + r.name + ".json", "w") as f:
 					f.write(r.serialize())
+		for r in self.configs:
+			if r:
+				with open(self.rootDir+"/cfg/" + r.name, "w") as f:
+					f.write(r.serialize())
+		for r in self.extras:
+			if r:
+				with open(self.rootDir+"/resources/extras/" + r.name, "w") as f:
+					d = r.serialize()
+					if not d is None:
+						f.write(d)
 	def confirmOverwriteResource(self, fn, name):
 		dialog = wx.MessageDialog(
 			self, "Another resource has the name \"" + name + "\". Overwrite it?",
@@ -385,10 +436,13 @@ class BEEFFrame(wx.Frame):
 		dialog.Destroy()
 		return True
 	def dialogRename(self, name):
-		dialog = wx.TextEntryDialog(
-			self, "Another resource has the name \"" + name + "\". Please enter a different name for the selected resource:",
-			"Resource Name Conflict"
-		)
+		title = "Resource Naming"
+		msg = "Choose a name for the new resource:"
+		if name:
+			title = "Resource Name Conflict"
+			msg = "Another resource has the name \"" + name + "\". Please enter a different name for the selected resource:"
+
+		dialog = wx.TextEntryDialog(self, msg, title)
 		dialog.SetValue(name)
 
 		if dialog.ShowModal() == wx.ID_OK:
@@ -438,6 +492,8 @@ class BEEFFrame(wx.Frame):
 		self.lights = []
 		self.objects = []
 		self.rooms = []
+		self.configs = []
+		self.extras = []
 
 		self.treectrl.reset()
 
@@ -456,7 +512,7 @@ class BEEFFrame(wx.Frame):
 			"game_name": "BEE_Example",
 
 			"game_version_major": 0,
-			"game_version_minor": 0,
+			"game_version_minor": 1,
 			"game_version_release": 1,
 
 			"open_resources": [],
@@ -464,13 +520,16 @@ class BEEFFrame(wx.Frame):
 			"resource_edit_programs": {
 				0: "", 1: "", 2: "", 3: "", 4: "",
 				5: "", 6: "", 7: "", 8: "", 9: ""
-			}
+			},
+
+			"first_room": ""
 		}
 		with open(self.projectFilename, "w") as f:
 			f.write(json.dumps(self.gameCfg, indent=4))
 
 		os.mkdir(self.rootDir + "/cfg")
 		os.mkdir(self.rootDir + "/resources")
+		os.mkdir(self.rootDir + "/resources/extras")
 		for t in EResource.getAll():
 			os.mkdir(self.rootDir + "/resources/" + EResource.getPlural(t).lower())
 
@@ -695,6 +754,48 @@ class BEEFFrame(wx.Frame):
 
 		self.rooms.append(r)
 		i = self.treectrl.addRoom(name, r)
+		r.treeitem = i
+
+		return (r, i)
+	def addConfig(self, name, resource=None):
+		r = resource
+		if not r:
+			r = BEEFConfig(self, name)
+
+		r.resourceList = self.configs
+
+		while not r.checkName(name, shouldDelete=False):
+			name = self.dialogRename(name)
+
+			if not name:
+				return (None, None)
+
+		self.setUnsaved()
+		r.name = name
+
+		self.configs.append(r)
+		i = self.treectrl.addConfig(name, r)
+		r.treeitem = i
+
+		return (r, i)
+	def addExtra(self, name, resource=None):
+		r = resource
+		if not r:
+			r = BEEFExtra(self, name)
+
+		r.resourceList = self.extras
+
+		while not r.checkName(name, shouldDelete=False):
+			name = self.dialogRename(name)
+
+			if not name:
+				return (None, None)
+
+		self.setUnsaved()
+		r.name = name
+
+		self.extras.append(r)
+		i = self.treectrl.addExtra(name, r)
 		r.treeitem = i
 
 		return (r, i)

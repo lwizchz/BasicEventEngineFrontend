@@ -16,6 +16,9 @@ class EResource:
 	ROOM = 8
 	_MAX = 9
 
+	CONFIG = 10
+	EXTRA = 11
+
 	@staticmethod
 	def get(type):
 		if type == EResource.TEXTURE:
@@ -36,6 +39,10 @@ class EResource:
 			return "Object"
 		elif type == EResource.ROOM:
 			return "Room"
+		elif type == EResource.CONFIG:
+			return "Config File"
+		elif type == EResource.EXTRA:
+			return "Extra File"
 	@staticmethod
 	def getPlural(type):
 		if type == EResource.MESH:
@@ -44,7 +51,7 @@ class EResource:
 			return EResource.get(type) + "s"
 	@staticmethod
 	def getAll():
-		return range(0, EResource._MAX)
+		return range(EResource._MAX)
 
 class EFontStyle:
 	NORMAL = 0
@@ -123,7 +130,9 @@ class EEvent:
 		"Game Start",
 		"Game End",
 		"Window",
-		"Network"
+		"Network",
+		"Extra Headers",
+		"Extra Functions"
 	]
 	@staticmethod
 	def get(index):
@@ -195,6 +204,10 @@ class EEvent:
 			return "bee::Instance* self, SDL_Event* e"
 		elif event == "Network":
 			return "bee::Instance* self, const NetworkEvent& e"
+		elif event == "Extra Headers":
+			return ""
+		elif event == "Extra Functions":
+			return ""
 	@staticmethod
 	def getParamTypes(event):
 		params = EEvent.getParams(event)
