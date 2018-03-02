@@ -23,6 +23,7 @@ class BEEFToolBar(wx.ToolBar):
 		runGameBmp =  wx.ArtProvider.GetBitmap(wx.ART_EXECUTABLE_FILE, wx.ART_TOOLBAR, tsize)
 		debugGameBmp = wx.ArtProvider.GetBitmap(wx.ART_WARNING, wx.ART_TOOLBAR, tsize)
 		packageGameBmp = wx.ArtProvider.GetBitmap(wx.ART_HARDDISK, wx.ART_TOOLBAR, tsize)
+		toggleLogBmp = wx.ArtProvider.GetBitmap(wx.ART_REPORT_VIEW, wx.ART_TOOLBAR, tsize)
 
 		self.SetToolBitmapSize(tsize)
 
@@ -34,6 +35,7 @@ class BEEFToolBar(wx.ToolBar):
 		self.AddTool(40, "Run", runGameBmp, "Run the game")
 		self.AddTool(50, "Debug", debugGameBmp, "Debug the game")
 		self.AddTool(60, "Package Executable", packageGameBmp, "Create a standalone executable for distribution")
+		self.AddTool(70, "Toggle Console Log", toggleLogBmp, "Toggle the console log", wx.ITEM_CHECK)
 
 	def Bind(self):
 		self.parent.Bind(wx.EVT_TOOL, self.parent.menubar.MenuFileNew, id=10)
@@ -43,3 +45,4 @@ class BEEFToolBar(wx.ToolBar):
 		self.parent.Bind(wx.EVT_TOOL, self.parent.menubar.MenuBuildRun, id=40)
 		self.parent.Bind(wx.EVT_TOOL, self.parent.menubar.MenuBuildDebug, id=50)
 		self.parent.Bind(wx.EVT_TOOL, self.parent.menubar.MenuBuildPackage, id=60)
+		self.parent.Bind(wx.EVT_TOOL, self.parent.menubar.MenuBuildToggleLog, id=70)

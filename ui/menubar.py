@@ -41,6 +41,7 @@ class BEEFMenuBar(wx.MenuBar):
 		menu3.Append(302, "&Debug\tF6", "Debug the game")
 		menu3.Append(303, "&Clean", "Clean the build directory")
 		menu3.Append(304, "&Package Executable\tF7", "Create a standalone executable for distribution")
+		menu3.Append(305, "&Toggle Console Log", "Toggle the console log")
 		self.Append(menu3, "&Build")
 
 		menu4 = wx.Menu()
@@ -76,6 +77,7 @@ class BEEFMenuBar(wx.MenuBar):
 		self.parent.Bind(wx.EVT_MENU, self.MenuBuildDebug, id=302)
 		self.parent.Bind(wx.EVT_MENU, self.MenuBuildClean, id=303)
 		self.parent.Bind(wx.EVT_MENU, self.MenuBuildPackage, id=304)
+		self.parent.Bind(wx.EVT_MENU, self.MenuBuildToggleLog, id=305)
 
 		self.parent.Bind(wx.EVT_MENU, self.MenuHelpBug, id=401)
 		self.parent.Bind(wx.EVT_MENU, self.MenuHelpGithub, id=402)
@@ -141,15 +143,21 @@ class BEEFMenuBar(wx.MenuBar):
 		pass
 
 	def MenuBuildRun(self, event):
+		self.parent.console.show()
 		if self.parent.compiler.compile(ECompile.DEBUG) == 0:
 			self.parent.compiler.run()
 	def MenuBuildDebug(self, event):
+		self.parent.console.show()
 		if self.parent.compiler.compile(ECompile.DEBUG) == 0:
 			self.parent.compiler.debug()
 	def MenuBuildClean(self, event):
+		self.parent.console.show()
 		self.parent.compiler.clean()
 	def MenuBuildPackage(self, event):
+		self.parent.console.show()
 		self.parent.compiler.package()
+	def MenuBuildToggleLog(self, event):
+		self.parent.console.toggle()
 
 	def MenuHelpBug(self, event):
 		webbrowser.open_new_tab("https://github.com/piluke/BasicEventEngineFrontend/issues/new")

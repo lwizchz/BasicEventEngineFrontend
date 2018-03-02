@@ -1,3 +1,33 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f1f7887d2008e8cd8e840dc7d571b7c708ecd1a64544fc474662eb41e53a3a7a
-size 632
+{
+    "beef_version_major": 0,
+    "resource_edit_programs": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": "",
+        "6": "",
+        "7": "",
+        "8": "",
+        "9": ""
+    },
+    "game_version_release": 1,
+    "game_version_minor": 0,
+    "open_resources": [
+        "spr_bee",
+        "snd_chirp",
+        "font_0",
+        "path_0",
+        "tl_0",
+        "mesh_0",
+        "lt_0",
+        "obj_0",
+        "rm_0"
+    ],
+    "beef_version_release": 1,
+    "beef_version_minor": 1,
+    "game_version_major": 0,
+    "game_name": "BEE_Example",
+    "first_room": ""
+}

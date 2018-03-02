@@ -146,3 +146,8 @@ class BEEFExtra(BEEFBaseResource):
 		r = BEEFExtra(self.top, None)
 		r.content = self.content
 		self.top.addExtra(self.name, r)
+
+	def MenuDeleteSpecific(self, event):
+		oldfile = self.top.rootDir+self.path+self.name
+		if os.path.isfile(oldfile):
+			os.remove(oldfile)

@@ -120,12 +120,16 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 		)
 
 		self.Bind(wx.stc.EVT_STC_CHARADDED, self.OnCharAdded)
+		self.Bind(wx.stc.EVT_STC_CHANGE, self.OnChange)
 
 	def UpdateMargins(self):
 		line_amount = self.GetText().count("\n")+1
 		self.SetMarginWidth(1, 12.5*(math.floor(math.log(line_amount, 10))+1))
 	def SetText(self, text):
 		wx.stc.StyledTextCtrl.SetText(self, text)
+		self.UpdateMargins()
+	def AppendText(self, text):
+		wx.stc.StyledTextCtrl.AppendText(self, text)
 		self.UpdateMargins()
 	def OnCharAdded(self, event):
 		newline = ord("\r")
@@ -152,6 +156,11 @@ class BEEFEditor(wx.stc.StyledTextCtrl):
 
 				self.SetLineIndentation(line, indent)
 
+		self.UpdateMargins()
+		self.Colourise(0, -1)
+
+		event.Skip()
+	def OnChange(self, event):
 		self.UpdateMargins()
 		self.Colourise(0, -1)
 

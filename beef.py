@@ -37,6 +37,7 @@ from ui.toolbar import BEEFToolBar
 from ui.treectrl import BEEFTreeCtrl
 from ui.notebook import BEEFNotebook
 from ui.editdialog import BEEFEditDialog
+from ui.console import BEEFConsole
 if "watchdog" in sys.modules:
 	from ui.filehandler import BEEFFileHandler
 
@@ -59,7 +60,7 @@ from resources.extra import BEEFExtra
 
 class BEEFFrame(wx.Frame):
 	def __init__(self, parent, id, file):
-		wx.Frame.__init__(self, parent, id, "BEE Frontend v" + self.getVersionString(), size=(1280, 720))
+		wx.Frame.__init__(self, parent, id, "BEE Frontend v" + self.getVersionString(), size=wx.GetDisplaySize().Get())
 		self.parent = parent
 		self.ready = False
 
@@ -127,6 +128,8 @@ class BEEFFrame(wx.Frame):
 		for t in EResource.getAll():
 			ed = BEEFEditDialog(self, EResource.get(t), None)
 			self.editDialogs.append(ed)
+
+		self.console = BEEFConsole(self, self.pane2, self.compiler.srcDir)
 
 		self.rootDir = tempfile.mkdtemp(prefix="beef-")
 		self.projectFilename = self.rootDir+"/config.beef"
@@ -205,6 +208,7 @@ class BEEFFrame(wx.Frame):
 
 		self.log("Loading \"" + self.projectFilename + "\"...")
 
+		self.console.clear()
 		self.compiler.clean()
 
 		self.rootDir = os.path.dirname(self.projectFilename)
@@ -867,6 +871,8 @@ class BEEFFrame(wx.Frame):
 			callback()
 
 if __name__ == "__main__":
+	os.chdir(os.path.dirname(sys.argv[0]))
+
 	file = None
 	if len(sys.argv) > 1:
 		file = sys.argv[1]

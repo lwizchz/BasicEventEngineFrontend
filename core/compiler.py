@@ -6,7 +6,6 @@
 
 import os
 import errno
-import subprocess
 import shutil
 
 from resources.enum import ECompile
@@ -55,7 +54,7 @@ class Compiler:
 		if type == ECompile.DEBUG:
 			print("Compiling {} in debug mode...".format(self.top.gameCfg["game_name"]))
 			self.top.SetStatusText("Compiling game...")
-			rc = subprocess.call(["./build.sh", "debug", "build", "echo"], cwd="{}".format(self.srcDir))
+			rc = self.top.console.call(["./build.sh", "debug", "build", "echo"])
 			if rc != 0:
 				self.top.SetStatusText("Compile failed!")
 				return 2
@@ -63,7 +62,7 @@ class Compiler:
 		elif type == ECompile.RELEASE:
 			print("Compiling {} in release mode...".format(self.top.gameCfg["game_name"]))
 			self.top.SetStatusText("Compiling game...")
-			rc = subprocess.call(["./build.sh", "release", "build", "echo"], cwd="{}".format(self.srcDir))
+			rc = self.top.console.call(["./build.sh", "release", "build", "echo"])
 			if rc != 0:
 				self.top.SetStatusText("Compile failed!")
 				return 2
@@ -76,18 +75,18 @@ class Compiler:
 	def run(self):
 		print("Running {}...".format(self.top.gameCfg["game_name"]))
 		self._copyResources()
-		subprocess.Popen(["./build/{}".format(self.top.gameCfg["game_name"]), "--no-assert"], cwd="{}".format(self.srcDir))
+		self.top.console.call(["./build/{}".format(self.top.gameCfg["game_name"]), "--no-assert"])
 	def debug(self):
 		print("Debugging {}...".format(self.top.gameCfg["game_name"]))
-		subprocess.Popen(["gdb", "./build/{}".format(self.top.gameCfg["game_name"])], cwd="{}".format(self.srcDir))
+		self.top.console.call(["gdb", "./build/{}".format(self.top.gameCfg["game_name"])])
 	def clean(self):
 		print("Cleaning {}...".format(self.top.gameCfg["game_name"]))
-		#subprocess.call(["./build.sh", "clean", "build"], cwd="{}".format(self.srcDir))
-		subprocess.call(["git", "clean", "-fd"], cwd=self.srcDir)
-		subprocess.call(["git", "reset", "HEAD", "--hard"], cwd=self.srcDir)
+		#self.top.console.call(["./build.sh", "clean", "build"])
+		self.top.console.call(["git", "clean", "-fd"])
+		self.top.console.call(["git", "reset", "HEAD", "--hard"])
 	def package(self):
 		print("Packaging {}...".format(self.top.gameCfg["game_name"]))
-		subprocess.call(["./package.sh"], cwd="{}".format(self.srcDir))
+		self.top.console.call(["./package.sh"])
 
 	def _createDir(self, path):
 		try:

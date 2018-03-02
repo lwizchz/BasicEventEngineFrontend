@@ -1,3 +1,26 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:efe61fe95e7305f80dc5bdab2e4d57ea28eea4ef3a4cb4ce8943109b152244c6
-size 526
+{
+    "beef_version_major": 0,
+    "beef_version_minor": 1,
+    "beef_version_release": 2,
+    "game_name": "BEE_Example",
+    "game_version_major": 0,
+    "game_version_minor": 1,
+    "game_version_release": 1,
+    "open_resources": [
+        "obj_screensaver",
+        "bk_saver"
+    ],
+    "resource_edit_programs": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": "",
+        "6": "",
+        "7": "",
+        "8": "",
+        "9": ""
+    },
+    "first_room": "rm_main"
+}

@@ -41,6 +41,8 @@ class BEEFObject(BEEFBaseResource):
 		self.lastSelected = -1
 		self.initialEventCode = "void {objname}::{event}({params}) {const}{{\n\t\n}}\n"
 
+		self.properties["events"][EEvent.getIndex("Create")] = self.getInitialCode("Create")
+
 	def getNewEvent(self):
 		newEvent = ""
 
@@ -50,6 +52,17 @@ class BEEFObject(BEEFBaseResource):
 
 		dialog.Destroy()
 		return newEvent
+	def getInitialCode(self, event):
+		if not self.name:
+			return ""
+
+		initialCode = ""
+		if event not in ["Extra Headers", "Extra Functions"]:
+			c = ""
+			if event in ["Check Collision Filter"]:
+				c = "const "
+			initialCode = self.initialEventCode.format(objname=self.name.replace("_", " ").title().replace(" ", ""), event=event.lower().replace(" ", "_"), params=EEvent.getParams(event), const=c)
+		return initialCode
 	def getSelectedEvent(self, index):
 		for event, data in self.tmpEvents.items():
 			if data[0] == index:
@@ -201,12 +214,7 @@ class BEEFObject(BEEFBaseResource):
 
 			self.addListRow("lst_events", [newEvent], isSortable=False)
 
-			initialCode = ""
-			if newEvent not in ["Extra Headers", "Extra Functions"]:
-				c = ""
-				if newEvent in ["Check Collision Filter"]:
-					c = "const "
-					initialCode = self.initialEventCode.format(objname=self.name.replace("_", " ").title().replace(" ", ""), event=newEvent.lower().replace(" ", "_"), params=EEvent.getParams(newEvent), const=c)
+			initialCode = self.getInitialCode(newEvent)
 
 			self.lastSelected = len(self.tmpEvents)
 			for i in range(self.lastSelected):

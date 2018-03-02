@@ -196,7 +196,7 @@ class BEEFBaseResource:
 		self.inputs[name] = BEEFEditor(self.page)
 		ed = self.inputs[name]
 
-		self.page.Bind(wx.stc.EVT_STC_CHARADDED, self.onEditor, ed)
+		self.page.Bind(wx.stc.EVT_STC_CHANGE, self.onEditor, ed)
 
 		return ed
 	def pageMakeGrid(self, name):
@@ -397,11 +397,18 @@ class BEEFBaseResource:
 
 		self.destroyPage()
 
-		self.resourceList[self.id] = None
-		oldfile = self.top.rootDir+self.path+self.name+".json"
-		if os.path.isfile(oldfile):
-			os.remove(oldfile)
+		del self.resourceList[self.id]
+		self.MenuDeleteSpecific(event)
 
 		self.top.treectrl.Delete(self.treeitem)
 	def MenuDuplicate(self, event):
 		pass # See implementation in specific resource file
+
+	def MenuDeleteSpecific(self, event):
+		oldfile = self.top.rootDir+self.path+self.name+".json"
+		if os.path.isfile(oldfile):
+			os.remove(oldfile)
+		if "path" in self.properties:
+			oldfile = self.top.rootDir+self.properties["path"]
+			if os.path.isfile(oldfile):
+				os.remove(oldfile)
